@@ -122,7 +122,7 @@ select,input{
 
 <body>
 
-<h1>Boy & Girl Horoscope Matching</h1>
+<h1>Groom & Bride Horoscope Matching</h1>
 
 
 
@@ -1124,18 +1124,17 @@ function recalcTable4(){
 
 
 
-
-<!-- ================= TABLE 5 : TARA BALA ================= -->
+<!-- ================= TABLE 5 : TARA BALA + NAKSHATRA COUNT ================= -->
 
 <div class="panel">
-<h2>Table 5 – Tara Bala Calculator</h2>
+<h2>Table 5 – Tara Bala & Nakshatra Count</h2>
 
 <table id="taraTable">
 <thead>
 <tr>
   <th>Entity</th>
-  <th>Boy → Girl</th>
-  <th>Girl → Boy</th>
+  <th>Boy → Girl<br><small>Tara / Count</small></th>
+  <th>Girl → Boy<br><small>Tara / Count</small></th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -1154,11 +1153,8 @@ function recalcTable4(){
 
 
 
-
-
-
 <script>
-/* ===================== TARA BALA DATA ===================== */
+/* ===================== TARA + NAKSHATRA COUNT ===================== */
 
 const TARA_NAMES = [
   "Janma",
@@ -1171,8 +1167,6 @@ const TARA_NAMES = [
   "Mithra",
   "Athi-Mithra"
 ];
-
-/* ===== SAME ORDER AS INPUT TABLE ===== */
 
 const taraOrder = [
   "Lagna",
@@ -1195,7 +1189,7 @@ const taraOrder = [
 
 const taraBody = document.querySelector("#taraTable tbody");
 
-/* ===================== BUILD TABLE 5 ===================== */
+/* ===== BUILD TABLE ===== */
 
 taraOrder.forEach(e=>{
   if(e === "_gap_"){
@@ -1215,49 +1209,39 @@ taraOrder.forEach(e=>{
     </tr>
   `);
 });
-</script>
 
+/* ===== CORE FUNCTIONS ===== */
 
-
-
-
-
-
-
-
-<script>
-/* ===================== TARA CALC ===================== */
-
+// Nakshatra index (0–26)
 function getNakIndex(padaIndex){
-  return Math.floor(Number(padaIndex) / 4); // 0–26
+  return Math.floor(Number(padaIndex) / 4);
 }
 
-function getTara(fromPada, toPada){
-  const fromNak = getNakshatraIndexForTara(fromPada);
-  const toNak   = getNakshatraIndexForTara(toPada);
-
+// Tara name
+function getTaraName(fromNak, toNak){
   const diff = (toNak - fromNak + 27) % 27;
   return TARA_NAMES[diff % 9];
 }
 
+// Nakshatra count (1–27, inclusive)
+function getNakCount(fromNak, toNak){
+  return (toNak - fromNak + 27) % 27 + 1;
+}
+
+/* ===== RECALC TABLE 5 ===== */
 
 function recalcTable5(){
 
   taraOrder.forEach(e=>{
     if(e === "_gap_") return;
 
-		const inRow  = [...tbody.children].find(
-	  r => r.dataset && r.dataset.entity === e
-	);
-	const outRow = [...taraBody.children].find(
-	  r => r.dataset && r.dataset.entity === e
-	);
+    const inRow  = [...tbody.children].find(r=>r.dataset?.entity===e);
+    const outRow = [...taraBody.children].find(r=>r.dataset?.entity===e);
 
-	if(!inRow || !outRow) return;
+    if(!inRow || !outRow) return;
 
-	const b = inRow.children[1].querySelector("select").value;
-	const g = inRow.children[2].querySelector("select").value;
-
+    const b = inRow.children[1].querySelector("select").value;
+    const g = inRow.children[2].querySelector("select").value;
 
     if(b==="" || g===""){
       outRow.querySelector(".bg").innerText = "";
@@ -1265,31 +1249,19 @@ function recalcTable5(){
       return;
     }
 
-    // Boy → Girl
-    outRow.querySelector(".bg").innerText = getTara(b, g);
+    const bNak = getNakIndex(b);
+    const gNak = getNakIndex(g);
 
-    // Girl → Boy
-    outRow.querySelector(".gb").innerText = getTara(g, b);
+    /* === Boy → Girl === */
+    const bgTara  = getTaraName(bNak, gNak);
+    const bgCount = getNakCount(bNak, gNak);
+    outRow.querySelector(".bg").innerText = `${bgTara} (${bgCount})`;
+
+    /* === Girl → Boy === */
+    const gbTara  = getTaraName(gNak, bNak);
+    const gbCount = getNakCount(gNak, bNak);
+    outRow.querySelector(".gb").innerText = `${gbTara} (${gbCount})`;
   });
-}
-
-
-
-
-
-/* ===== TARA BALA (PURE NAKSHATRA LOGIC) ===== */
-
-function getNakIndexForTara(padaIndex){
-  // Tara Bala is ALWAYS nakshatra-based (27), independent of KP / Vedic / Ignore Pada
-  return Math.floor(Number(padaIndex) / 4); // 0–26
-}
-
-function getTara(fromPada, toPada){
-  const fromNak = getNakIndexForTara(fromPada);
-  const toNak   = getNakIndexForTara(toPada);
-
-  const diff = (toNak - fromNak + 27) % 27;
-  return TARA_NAMES[diff % 9];
 }
 
 
