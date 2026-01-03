@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Horoscope Matching Tool – Part 1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  background:#0c1b1b;
+  color:#f6e7b2;
+  font-family:Arial,sans-serif;
+  padding:20px;
+}
+h1{
+  text-align:center;
+  color:#facc15;
+}
+.panel{
+  border:2px solid #c9a227;
+  padding:14px;
+  margin-bottom:18px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #c9a227;
+  padding:6px;
+  text-align:center;
+}
+th{background:#123c3c}
+select,input{
+  background:#102a2a;
+  color:#fef3c7;
+  border:1px solid #c9a227;
+  padding:6px;
+  font-weight:700;
+}
+.controls label{
+  margin-right:14px;
+}
+
+
+
+
+
+/* ===== ACTION BUTTONS ===== */
+
+.action-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.action-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.action-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.action-btn{
+  padding:6px 16px;
+  font-weight:900;
+  border-radius:6px;
+  border:2px solid #fde68a;
+  background:linear-gradient(145deg,#facc15,#c9a227,#facc15);
+  color:#1f2933;
+  cursor:pointer;
+  box-shadow:
+    inset 0 0 6px rgba(255,255,255,0.4),
+    0 0 6px rgba(250,204,21,0.6);
+}
+
+.action-btn:hover{
+  filter:brightness(1.1);
+}
+
+.action-btn.clear{
+  background:linear-gradient(145deg,#fb923c,#f97316,#fb923c);
+  border-color:#fed7aa;
+}
+
+
+
+
+
+/* ===== GAP ROW (PRIORITY SEPARATOR) ===== */
+.gap-row td{
+  height:15px;          /* half of normal row */
+  border:none !important;
+  padding:0 !important;
+  background:transparent;
+}
+
+
+
+
+
+
+
+
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+
+<h1>Boy & Girl Horoscope Matching</h1>
+
+
+
+
+<div class="panel">
+  <div class="action-bar">
+
+    <!-- LEFT SIDE CONTROLS -->
+    <div class="action-left">
+      <label>
+        <input type="radio" name="sys" value="vedic">
+        Vedic
+      </label>
+
+      <label>
+        <input type="radio" name="sys" value="kp" checked>
+        KP
+      </label>
+
+      <label>
+        <input type="checkbox" id="ignorePadas">
+        Ignore Padas
+      </label>
+
+      <label>
+        <input type="checkbox" id="rkLink" checked>
+        Rahu + Ketu Link
+      </label>
+	  
+	  
+	  <label>
+	  <input type="checkbox" id="sign2sign">
+	  Sign to Sign
+	</label>
+
+	  
+    </div>
+
+    <!-- RIGHT SIDE ACTIONS -->
+    <div class="action-right">
+      <button class="action-btn" onclick="saveChart()">Save</button>
+      <button class="action-btn" onclick="loadChart()">Load</button>
+      <button class="action-btn clear" onclick="clearAll()">Clear</button>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
+<input type="file" id="fileInput" accept=".json" style="display:none"/>
+
+<script>
+/* ===================== SAVE ===================== */
+
+function saveChart(){
+  const data = {
+    system: document.querySelector('input[name="sys"]:checked').value,
+    ignorePadas: document.getElementById("ignorePadas").checked,
+    rkLink: document.getElementById("rkLink").checked,
+    entries: {}
+  };
+
+  [...tbody.children].forEach(tr=>{
+    const ent = tr.dataset.entity;
+    const boy = tr.children[1].querySelector("select").value;
+    const girl = tr.children[2].querySelector("select").value;
+    data.entries[ent] = { boy, girl };
+  });
+
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "HoroscopeMatching.json";
+  a.click();
+}
+
+/* ===================== LOAD ===================== */
+
+function loadChart(){
+  const inp=document.getElementById("fileInput");
+  inp.value="";
+  inp.click();
+
+  inp.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const d=JSON.parse(reader.result);
+
+      document.querySelector(`input[name="sys"][value="${d.system}"]`).checked=true;
+      document.getElementById("ignorePadas").checked=d.ignorePadas;
+      document.getElementById("rkLink").checked=d.rkLink;
+
+      [...tbody.children].forEach(tr=>{
+        const ent=tr.dataset.entity;
+        if(d.entries[ent]){
+          tr.children[1].querySelector("select").value=d.entries[ent].boy;
+          tr.children[2].querySelector("select").value=d.entries[ent].girl;
+        }
+      });
+
+     setTimeout(()=>{
+	  recalcTable2();
+	  recalcTable3();
+	  recalcTable4();
+	  recalcTable5();
+	},0);
+
+    };
+    reader.readAsText(file);
+  };
+}
+
+/* ===================== CLEAR ===================== */
+
+function clearAll(){
+  const ok = confirm(
+    "⚠️ WARNING\n\nThis will clear all entered horoscope data.\nThis action cannot be undone.\n\nContinue?"
+  );
+  if(!ok) return;
+
+  document.querySelectorAll("select").forEach(s=>s.value="");
+  document.getElementById("ignorePadas").checked=false;
+  document.getElementById("rkLink").checked=true;
+  document.querySelector('input[name="sys"][value="vedic"]').checked=true;
+
+document.querySelectorAll(
+  "#resultTable td,#lagnaPlanetTable td,#tatvaTable td,#taraTable td"
+).forEach(td=>td.innerText="");
+
+
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ================= TABLE 1 : INPUT ================= -->
+
+<div class="panel">
+<h2>Table 1 – Input Details</h2>
+
+<table id="inputTable">
+<thead>
+<tr>
+  <th>Entity</th>
+  <th>Boy</th>
+  <th>Girl</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+/* ===================== MASTER DATA ===================== */
+
+const nak = [
+"Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha",
+"Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha",
+"Moola","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha",
+"Purva Bhadrapada","Uttara Bhadrapada","Revati"
+];
+
+const nakLords = [
+"Ketu","Venus","Surya","Chandra","Mangala","Rahu","Jupiter","Saturn","Budha",
+"Ketu","Venus","Surya","Chandra","Mangala","Rahu","Jupiter","Saturn","Budha",
+"Ketu","Venus","Surya","Chandra","Mangala","Rahu","Jupiter","Saturn","Budha"
+];
+
+const rasiNames = [
+"ಮೇಷ","ವೃಷಭ","ಮಿಥುನ","ಕಟಕ","ಸಿಂಹ","ಕನ್ಯಾ",
+"ತುಲಾ","ವೃಶ್ಚಿಕ","ಧನಸ್ಸು","ಮಕರ","ಕುಂಭ","ಮೀನಾ"
+];
+
+/* ===================== PADAS (108) ===================== */
+
+const padas=[];
+let pc=0;
+
+for(let i=0;i<27;i++){
+  for(let p=1;p<=4;p++){
+    const rasiIndex=Math.floor(pc/9);
+    padas.push({
+      index:pc,
+      label:`[${pc+1}]. ${rasiNames[rasiIndex]} - ${rasiIndex+1} - ${nakLords[i]} - ${nak[i]} - ${p}`
+    });
+    pc++;
+  }
+}
+
+const TOTAL_PADAS = padas.length;
+
+/* ===================== DROPDOWN BUILDER ===================== */
+
+function buildSelect(){
+  return `
+    <select>
+      <option value="">-- Select --</option>
+      ${padas.map(p=>`<option value="${p.index}">${p.label}</option>`).join("")}
+    </select>
+  `;
+}
+
+/* ===================== TABLE 1 BUILD ===================== */
+
+
+
+
+const orderedEntities = [
+  "Lagna",
+  "_gap_",
+  "Chandra",
+  "Venus",
+  "Mangala",
+  "Guru",
+  "_gap_",
+  "Budha",
+  "Shani",
+  "_gap_",
+  "Surya",
+  "Rahu",
+  "Ketu",
+  "_gap_",
+  "Lagn Progs",
+  "Rasi Progs"
+];
+
+// entities WITHOUT gaps (used for calculations)
+const entities = orderedEntities.filter(e => e !== "_gap_");
+
+
+
+
+
+
+const tbody = document.querySelector("#inputTable tbody");
+
+orderedEntities.forEach(e=>{
+  if(e === "_gap_"){
+    tbody.insertAdjacentHTML("beforeend",`
+      <tr class="gap-row">
+        <td colspan="3"></td>
+      </tr>
+    `);
+    return;
+  }
+
+  tbody.insertAdjacentHTML("beforeend",`
+    <tr data-entity="${e}">
+      <td><b>${e}</b></td>
+      <td>${buildSelect()}</td>
+      <td>${buildSelect()}</td>
+    </tr>
+  `);
+});
+
+
+
+
+/* ===================== RAHU–KETU LINK ===================== */
+
+tbody.addEventListener("change",e=>{
+  if(!document.getElementById("rkLink").checked) return;
+  if(e.target.tagName!=="SELECT") return;
+
+  const tr=e.target.closest("tr");
+  const entity=tr.dataset.entity;
+  if(entity!=="Rahu" && entity!=="Ketu") return;
+
+  const val=e.target.value;
+  if(val==="") return;
+
+  const opposite=(Number(val)+54)%TOTAL_PADAS;
+  const otherEntity=entity==="Rahu"?"Ketu":"Rahu";
+
+  const otherRow=[...tbody.children].find(r=>r.dataset.entity===otherEntity);
+	const colIndex = e.target.closest("td").cellIndex;
+
+	const otherSelect =
+	  otherRow.children[colIndex].querySelector("select");
+
+
+  otherSelect.value=opposite;
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ================= TABLE 2 : DIRECT MATCHING ================= -->
+
+<div class="panel">
+<h2>Table 2 – Lagna ↔ Lagna & Planet ↔ Planet</h2>
+<table id="resultTable">
+<thead>
+<tr>
+	<th>Entity</th>
+	<th>Boy → Girl</th>
+	<th>Eq</th>
+	<th>Result</th>
+	<th>Girl → Boy</th>
+	<th>Eq</th>
+	<th>Result</th>
+
+
+</tr>
+</thead>
+<tbody></tbody>
+
+</table>
+
+<table style="margin-top:6px;width:100%">
+  <tr>
+    <td style="font-weight:900">Boy → Girl</td>
+    <td id="t2bg_pos" style="color:#16a34a;font-weight:900"></td>
+    <td id="t2bg_avg" style="color:#f59e0b;font-weight:900"></td>
+    <td id="t2bg_neg" style="color:#dc2626;font-weight:900"></td>
+  </tr>
+  <tr>
+    <td style="font-weight:900">Girl → Boy</td>
+    <td id="t2gb_pos" style="color:#16a34a;font-weight:900"></td>
+    <td id="t2gb_avg" style="color:#f59e0b;font-weight:900"></td>
+    <td id="t2gb_neg" style="color:#dc2626;font-weight:900"></td>
+  </tr>
+</table>
+
+</div>
+
+
+
+
+
+<script>
+/* ===================== HOUSE + EQUIVALENCE ENGINE ===================== */
+
+function getSystem(){
+  return document.querySelector('input[name="sys"]:checked').value;
+}
+
+
+
+function getDistance(from,to){
+  const sign2sign = document.getElementById("sign2sign")?.checked;
+  const ignorePadas = document.getElementById("ignorePadas").checked;
+  const sys = getSystem();
+
+  // SIGN TO SIGN MODE (highest priority)
+  if(sign2sign){
+    const rf = Math.floor(from / 9); // 0–11
+    const rt = Math.floor(to / 9);   // 0–11
+    return ((rt - rf + 12) % 12) * 9;
+  }
+
+  // IGNORE PADAS (nakshatra based)
+  if(ignorePadas){
+    const nf = Math.floor(from / 4);
+    const nt = Math.floor(to / 4);
+    return ((nt - nf + 27) % 27) * 4;
+  }
+
+  // NORMAL MODE
+  if(sys==="vedic"){
+    return (to - from + 108 + 4) % 108;
+  }
+
+  return (to - from + 108) % 108;
+}
+
+
+
+
+
+
+function houseFromDistance(d){
+  return Math.floor(d/9)%12+1;
+}
+
+/* ===== YOUR GENERALIZED EQUIVALENCE RULE ===== */
+
+function equivalentHouseTable2(h){
+  if(h===1) return "1-1";
+  if(h===2||h===12) return "2-12";
+  if(h===3||h===11) return "3-11";
+  if(h===4||h===10) return "4-10";
+  if(h===5||h===9) return "5-9";
+  if(h===6||h===8) return "6-8";
+  if(h===7) return "7-7";
+  return "";
+}
+
+
+
+
+function verdict(eq){
+
+  // GOOD
+  if(eq === "3-11" || eq === "5-9"){
+    return { text:"Good", color:"#16a34a" };
+  }
+
+  // AVERAGE
+  if(
+    eq === "1-1" ||
+    eq === "4-10" ||
+    eq === "7-7"      // 🔥 MISSING CASE (FIX)
+  ){
+    return { text:"Average", color:"#f59e0b" };
+  }
+
+  // BAD
+  if(eq === "2-12" || eq === "6-8"){
+    return { text:"Bad", color:"#dc2626" };
+  }
+
+  return { text:"", color:"" };
+}
+
+
+
+
+
+
+/* ===================== BUILD TABLE 2 ===================== */
+
+const resultBody=document.querySelector("#resultTable tbody");
+
+orderedEntities.forEach(e=>{
+  if(e === "_gap_"){
+    resultBody.insertAdjacentHTML("beforeend",`
+      <tr class="gap-row">
+        <td colspan="4"></td>
+      </tr>
+    `);
+    return;
+  }
+
+  resultBody.insertAdjacentHTML("beforeend",`
+    <tr data-entity="${e}">
+  <td><b>${e}</b></td>
+
+  <td class="houseBG"></td>
+  <td class="eqBG"></td>
+  <td class="resBG"></td>
+
+  <td class="houseGB"></td>
+  <td class="eqGB"></td>
+  <td class="resGB"></td>
+	</tr>
+
+
+  `);
+});
+
+/* ===================== CORE RECALC ===================== */
+
+
+
+
+
+
+
+
+
+function recalcTable2(){
+
+  let bg_pos=0, bg_avg=0, bg_neg=0;
+  let gb_pos=0, gb_avg=0, gb_neg=0;
+
+  entities.forEach(e=>{
+    const inRow = [...tbody.children].find(r=>r.dataset.entity===e);
+    const outRow = [...resultBody.children].find(r=>r.dataset.entity===e);
+
+    const b = inRow.children[1].querySelector("select").value;
+    const g = inRow.children[2].querySelector("select").value;
+
+    if(b==="" || g===""){
+      outRow.querySelectorAll("td").forEach((td,i)=>{
+        if(i>0) td.innerText="";
+      });
+      return;
+    }
+
+    /* ========= BOY → GIRL ========= */
+    const dBG = getDistance(Number(b), Number(g));
+    const hBG = houseFromDistance(dBG);
+    const eqBG = equivalentHouseTable2(hBG);
+    const vBG  = verdict(eqBG);
+
+    outRow.querySelector(".houseBG").innerText = hBG;
+    outRow.querySelector(".eqBG").innerText = eqBG;
+    outRow.querySelector(".resBG").innerText = vBG.text;
+    outRow.querySelector(".resBG").style.color = vBG.color;
+
+    if(vBG.text==="Good") bg_pos++;
+    if(vBG.text==="Average") bg_avg++;
+    if(vBG.text==="Bad") bg_neg++;
+
+    /* ========= GIRL → BOY ========= */
+    const dGB = getDistance(Number(g), Number(b));
+    const hGB = houseFromDistance(dGB);
+    const eqGB = equivalentHouseTable2(hGB);
+    const vGB  = verdict(eqGB);
+
+    outRow.querySelector(".houseGB").innerText = hGB;
+    outRow.querySelector(".eqGB").innerText = eqGB;
+    outRow.querySelector(".resGB").innerText = vGB.text;
+    outRow.querySelector(".resGB").style.color = vGB.color;
+
+    if(vGB.text==="Good") gb_pos++;
+    if(vGB.text==="Average") gb_avg++;
+    if(vGB.text==="Bad") gb_neg++;
+  });
+
+  /* ========= UPDATE TOTALS ========= */
+  document.getElementById("t2bg_pos").innerText = `Positive : ${bg_pos}`;
+  document.getElementById("t2bg_avg").innerText = `Average : ${bg_avg}`;
+  document.getElementById("t2bg_neg").innerText = `Negative : ${bg_neg}`;
+
+  document.getElementById("t2gb_pos").innerText = `Positive : ${gb_pos}`;
+  document.getElementById("t2gb_avg").innerText = `Average : ${gb_avg}`;
+  document.getElementById("t2gb_neg").innerText = `Negative : ${gb_neg}`;
+}
+
+
+
+
+
+
+
+
+/* ===================== HOOK EVENTS ===================== */
+
+document.addEventListener("change",e=>{
+  if(e.target.matches("select,input")){
+    recalcTable2();
+    recalcTable3();
+    recalcTable4();
+  }
+});
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- ================= TABLE 3 : LAGNA → PLANET ================= -->
+
+<div class="panel">
+<h2>Table 3 – Lagna → Planet Analysis</h2>
+<table id="lagnaPlanetTable">
+<thead>
+<tr>
+  <th>Planet</th>
+  <th>Boy (From Lagna)</th>
+  <th>Girl (From Lagna)</th>
+  <th>Equivalent</th>
+  <th>Result</th>
+</tr>
+</thead>
+<tbody></tbody>
+
+</table>
+
+<table style="margin-top:6px;width:100%">
+  <tr>
+    <td style="text-align:left;font-weight:900">Total</td>
+    <td id="t3pos" style="color:#16a34a;font-weight:900"></td>
+    <td id="t3neg" style="color:#dc2626;font-weight:900"></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+
+
+// ===== TABLE 3 DISPLAY ORDER (NO LAGNA / PROGS) =====
+const table3Order = [
+  "Chandra",
+  "Venus",
+  "Mangala",
+  "Guru",
+  "_gap_",
+  "Budha",
+  "Shani",
+  "_gap_",
+  "Surya",
+  "Rahu",
+  "Ketu"
+];
+
+// Used ONLY for calculations (no gaps)
+const planetsOnly = table3Order.filter(p => p !== "_gap_");
+
+const lagnaPlanetBody = document.querySelector("#lagnaPlanetTable tbody");
+
+
+
+
+table3Order.forEach(p=>{
+  // GAP ROW (VISUAL SEPARATOR)
+  if(p === "_gap_"){
+    lagnaPlanetBody.insertAdjacentHTML("beforeend",`
+      <tr class="gap-row">
+        <td colspan="7"></td>
+      </tr>
+    `);
+    return;
+  }
+
+  // NORMAL PLANET ROW
+  lagnaPlanetBody.insertAdjacentHTML("beforeend",`
+    <tr data-planet="${p}">
+      <td><b>${p}</b></td>
+      <td class="boy"></td>
+      <td class="girl"></td>
+      <td class="eq"></td>
+      <td class="res"></td>
+    </tr>
+  `);
+});
+
+
+/* ===================== TABLE 3 CALC ===================== */
+
+
+
+
+function recalcTable3(){
+  let pos = 0, avg = 0, neg = 0;
+
+  const lagnaRow = [...tbody.children].find(r=>r.dataset.entity==="Lagna");
+  if(!lagnaRow) return;
+
+  const boyLagna = lagnaRow.children[1].querySelector("select").value;
+  const girlLagna = lagnaRow.children[2].querySelector("select").value;
+
+  if(boyLagna==="" || girlLagna===""){
+  lagnaPlanetBody.querySelectorAll("tr").forEach(tr=>{
+    tr.querySelector(".boy").innerText="";
+    tr.querySelector(".girl").innerText="";
+    tr.querySelector(".eq").innerText="";
+    tr.querySelector(".res").innerText="";
+    tr.querySelector(".res").style.color="";
+  });
+  return;
+}
+
+
+  planetsOnly.forEach(p=>{
+    const inRow = [...tbody.children].find(r=>r.dataset.entity===p);
+    const outRow = [...lagnaPlanetBody.children].find(r=>r.dataset.planet===p);
+
+    const boyP = inRow.children[1].querySelector("select").value;
+    const girlP = inRow.children[2].querySelector("select").value;
+
+    if(boyP==="" || girlP===""){
+      outRow.querySelector(".boy").innerText="";
+      outRow.querySelector(".girl").innerText="";
+      outRow.querySelector(".eq").innerText="";
+      outRow.querySelector(".res").innerText="";
+      return;
+    }
+
+    const dBoy = getDistance(Number(boyLagna), Number(boyP));
+    const dGirl = getDistance(Number(girlLagna), Number(girlP));
+
+    const hBoy = houseFromDistance(dBoy);
+    const hGirl = houseFromDistance(dGirl);
+
+    const eq = equivalentHouseTable3(hBoy,hGirl);
+    const v  = verdict(eq);
+
+   if(v.text==="Good") pos++;
+	if(v.text==="Average") avg++;
+	if(v.text==="Bad") neg++;
+
+
+    outRow.querySelector(".boy").innerText = hBoy;
+    outRow.querySelector(".girl").innerText = hGirl;
+    outRow.querySelector(".eq").innerText = eq;
+    outRow.querySelector(".res").innerText = v.text;
+    outRow.querySelector(".res").style.color = v.color;
+  });
+
+
+
+
+    document.getElementById("t3pos").innerText = `Positive : ${pos}`;
+	document.getElementById("t3neg").innerText = `Negative : ${neg}`;
+
+	if(!document.getElementById("t3avg")){
+	  document.getElementById("t3pos").insertAdjacentHTML(
+		"afterend",
+		`<td id="t3avg" style="color:#f59e0b;font-weight:900"></td>`
+	  );
+	}
+
+	document.getElementById("t3avg").innerText = `Average : ${avg}`;
+
+}
+
+
+
+
+
+
+function equivalentHouseTable3(a,b){
+
+  /* ===== EXACT SAME HOUSE ===== */
+  if(a === b) return "1-1";
+
+  /* ===== 1–7 OR 7–1 SPECIAL CASE ===== */
+  if(
+    (a === 1 && b === 7) ||
+    (a === 7 && b === 1)
+  ){
+    return "7-7";
+  }
+
+  /* ===== INCLUSIVE DISTANCE COUNTING ===== */
+  let d1 = b >= a ? (b - a + 1) : (12 - a + b + 1);
+  let d2 = a >= b ? (a - b + 1) : (12 - b + a + 1);
+
+  const x = Math.min(d1, d2);
+  const y = Math.max(d1, d2);
+
+  if(x===1 && y===13) return "1-1";
+  if(x===2 && y===12) return "2-12";
+  if(x===3 && y===11) return "3-11";
+  if(x===4 && y===10) return "4-10";
+  if(x===5 && y===9)  return "5-9";
+  if(x===6 && y===8)  return "6-8";
+  if(x===7 && y===7)  return "7-7";
+
+  return "";
+}
+
+
+
+
+
+
+
+
+/* ===================== HOOK TABLE 3 ===================== */
+
+document.addEventListener("change",e=>{
+  if(e.target.matches("select,input")){
+    recalcTable3();
+  }
+});
+</script>
+
+
+
+
+
+
+
+
+
+<!-- ================= TABLE 4 : TATVA MATCHING ================= -->
+
+<div class="panel">
+<h2>Table 4 – Tatva Matching</h2>
+
+
+
+<table id="tatvaTable">
+<thead>
+<tr>
+  <th>Entity</th>
+  <th>Boy Tatva</th>
+  <th>Girl Tatva</th>
+  <th>Result</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<table style="margin-top:6px;width:100%">
+  <tr>
+    <td style="text-align:left;font-weight:900">Total</td>
+    <td id="t4pos" style="color:#16a34a;font-weight:900"></td>
+    <td id="t4avg" style="color:#f59e0b;font-weight:900"></td>
+    <td id="t4neg" style="color:#dc2626;font-weight:900"></td>
+  </tr>
+</table>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>
+/* ===================== TATVA DATA ===================== */
+
+const tatvaMap = {
+  0:"Fire",   // Aries
+  1:"Earth", // Taurus
+  2:"Air",   // Gemini
+  3:"Water", // Cancer
+  4:"Fire",  // Leo
+  5:"Earth", // Virgo
+  6:"Air",   // Libra
+  7:"Water", // Scorpio
+  8:"Fire",  // Sagittarius
+  9:"Earth", // Capricorn
+  10:"Air",  // Aquarius
+  11:"Water" // Pisces
+};
+
+/* ===================== TATVA TABLE BUILD ===================== */
+
+const tatvaBody = document.querySelector("#tatvaTable tbody");
+
+orderedEntities.forEach(e=>{
+  if(e === "_gap_"){
+    tatvaBody.insertAdjacentHTML("beforeend",`
+      <tr class="gap-row">
+        <td colspan="4"></td>
+      </tr>
+    `);
+    return;
+  }
+
+  tatvaBody.insertAdjacentHTML("beforeend",`
+    <tr data-entity="${e}">
+      <td><b>${e}</b></td>
+      <td class="bt"></td>
+      <td class="gt"></td>
+      <td class="res"></td>
+    </tr>
+  `);
+});
+
+/* ===================== TATVA LOGIC ===================== */
+
+
+
+
+
+
+function tatvaVerdict(b,g){
+
+  // SAME ELEMENT → AVERAGE
+  if(b === g){
+    return { text:"Average", color:"#f59e0b" };
+  }
+
+  // BEST PAIRS → GOOD
+  if(
+    (b==="Fire" && g==="Air") ||
+    (b==="Air" && g==="Fire") ||
+    (b==="Earth" && g==="Water") ||
+    (b==="Water" && g==="Earth")
+  ){
+    return { text:"Good", color:"#16a34a" };
+  }
+
+  // WORST PAIRS → BAD
+  if(
+    (b==="Fire" && g==="Water") ||
+    (b==="Water" && g==="Fire") ||
+    (b==="Air" && g==="Earth") ||
+    (b==="Earth" && g==="Air")
+  ){
+    return { text:"Bad", color:"#dc2626" };
+  }
+
+  // FALLBACK (SAFETY)
+  return { text:"Average", color:"#f59e0b" };
+}
+
+
+
+/* ===================== CALC TABLE 4 ===================== */
+
+
+
+
+
+
+
+function recalcTable4(){
+  let pos = 0, avg = 0, neg = 0;
+
+  entities.forEach(e=>{
+    const inRow = [...tbody.children].find(r=>r.dataset.entity===e);
+    const outRow = [...tatvaBody.children].find(r=>r.dataset.entity===e);
+
+    const b = inRow.children[1].querySelector("select").value;
+    const g = inRow.children[2].querySelector("select").value;
+
+    if(b==="" || g===""){
+      outRow.querySelector(".bt").innerText="";
+      outRow.querySelector(".gt").innerText="";
+      outRow.querySelector(".res").innerText="";
+      outRow.querySelector(".res").style.color="";
+      return;
+    }
+
+    const bRasi = Math.floor(Number(b)/9);
+    const gRasi = Math.floor(Number(g)/9);
+
+    const bt = tatvaMap[bRasi];
+    const gt = tatvaMap[gRasi];
+
+    const v = tatvaVerdict(bt,gt);
+
+    if(v.text==="Good") pos++;
+    if(v.text==="Average") avg++;
+    if(v.text==="Bad") neg++;
+
+    outRow.querySelector(".bt").innerText = bt;
+    outRow.querySelector(".gt").innerText = gt;
+    outRow.querySelector(".res").innerText = v.text;
+    outRow.querySelector(".res").style.color = v.color;
+  });
+
+  document.getElementById("t4pos").innerText = `Positive : ${pos}`;
+  document.getElementById("t4avg").innerText = `Average : ${avg}`;
+  document.getElementById("t4neg").innerText = `Negative : ${neg}`;
+}
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ================= TABLE 5 : TARA BALA ================= -->
+
+<div class="panel">
+<h2>Table 5 – Tara Bala Calculator</h2>
+
+<table id="taraTable">
+<thead>
+<tr>
+  <th>Entity</th>
+  <th>Boy → Girl</th>
+  <th>Girl → Boy</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+/* ===================== TARA BALA DATA ===================== */
+
+const TARA_NAMES = [
+  "Janma",
+  "Sampath",
+  "Vipath",
+  "Kshema",
+  "Pratyari",
+  "Sadhana",
+  "Nidana",
+  "Mithra",
+  "Athi-Mithra"
+];
+
+/* ===== SAME ORDER AS INPUT TABLE ===== */
+
+const taraOrder = [
+  "Lagna",
+  "_gap_",
+  "Chandra",
+  "Venus",
+  "Mangala",
+  "Guru",
+  "_gap_",
+  "Budha",
+  "Shani",
+  "_gap_",
+  "Surya",
+  "Rahu",
+  "Ketu",
+  "_gap_",
+  "Lagn Progs",
+  "Rasi Progs"
+];
+
+const taraBody = document.querySelector("#taraTable tbody");
+
+/* ===================== BUILD TABLE 5 ===================== */
+
+taraOrder.forEach(e=>{
+  if(e === "_gap_"){
+    taraBody.insertAdjacentHTML("beforeend",`
+      <tr class="gap-row">
+        <td colspan="3"></td>
+      </tr>
+    `);
+    return;
+  }
+
+  taraBody.insertAdjacentHTML("beforeend",`
+    <tr data-entity="${e}">
+      <td><b>${e}</b></td>
+      <td class="bg"></td>
+      <td class="gb"></td>
+    </tr>
+  `);
+});
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+/* ===================== TARA CALC ===================== */
+
+function getNakIndex(padaIndex){
+  return Math.floor(Number(padaIndex) / 4); // 0–26
+}
+
+function getTara(fromPada, toPada){
+  const fromNak = getNakshatraIndexForTara(fromPada);
+  const toNak   = getNakshatraIndexForTara(toPada);
+
+  const diff = (toNak - fromNak + 27) % 27;
+  return TARA_NAMES[diff % 9];
+}
+
+
+function recalcTable5(){
+
+  taraOrder.forEach(e=>{
+    if(e === "_gap_") return;
+
+		const inRow  = [...tbody.children].find(
+	  r => r.dataset && r.dataset.entity === e
+	);
+	const outRow = [...taraBody.children].find(
+	  r => r.dataset && r.dataset.entity === e
+	);
+
+	if(!inRow || !outRow) return;
+
+	const b = inRow.children[1].querySelector("select").value;
+	const g = inRow.children[2].querySelector("select").value;
+
+
+    if(b==="" || g===""){
+      outRow.querySelector(".bg").innerText = "";
+      outRow.querySelector(".gb").innerText = "";
+      return;
+    }
+
+    // Boy → Girl
+    outRow.querySelector(".bg").innerText = getTara(b, g);
+
+    // Girl → Boy
+    outRow.querySelector(".gb").innerText = getTara(g, b);
+  });
+}
+
+
+
+
+
+/* ===== TARA BALA (PURE NAKSHATRA LOGIC) ===== */
+
+function getNakIndexForTara(padaIndex){
+  // Tara Bala is ALWAYS nakshatra-based (27), independent of KP / Vedic / Ignore Pada
+  return Math.floor(Number(padaIndex) / 4); // 0–26
+}
+
+function getTara(fromPada, toPada){
+  const fromNak = getNakIndexForTara(fromPada);
+  const toNak   = getNakIndexForTara(toPada);
+
+  const diff = (toNak - fromNak + 27) % 27;
+  return TARA_NAMES[diff % 9];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================== HOOK ===================== */
+
+document.addEventListener("change",e=>{
+  if(e.target.matches("select,input")){
+    recalcTable2();
+    recalcTable3();
+    recalcTable4();
+    recalcTable5();
+  }
+});
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
