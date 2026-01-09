@@ -112,6 +112,58 @@ select,input{
 
 
 
+
+
+
+/* ===== TABLE 6 : 36 GUNA MATRIX ===== */
+
+#guna36Table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+#guna36Table th,
+#guna36Table td{
+  border:1px solid #c9a227;
+  padding:6px;
+  text-align:center;
+}
+
+#guna36Table thead th{
+  background:#123c3c;
+  color:#fde68a;
+  font-weight:900;
+}
+
+#guna36Table td.total{
+  font-weight:900;
+  font-size:14px;
+}
+
+/* Lagna highlight */
+#guna36Table tr.guna-lagna{
+  background:#102a2a;
+  border:2px solid #facc15;
+}
+
+/* Score coloring (will be applied by JS later) */
+.guna-good{ color:#16a34a; font-weight:900; }
+.guna-avg{ color:#f59e0b; font-weight:900; }
+.guna-bad{ color:#dc2626; font-weight:900; }
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 
 
@@ -176,91 +228,6 @@ select,input{
 
 
 <input type="file" id="fileInput" accept=".json" style="display:none"/>
-
-<script>
-/* ===================== SAVE ===================== */
-
-function saveChart(){
-  const data = {
-    system: document.querySelector('input[name="sys"]:checked').value,
-    ignorePadas: document.getElementById("ignorePadas").checked,
-    rkLink: document.getElementById("rkLink").checked,
-    entries: {}
-  };
-
-  [...tbody.children].forEach(tr=>{
-    const ent = tr.dataset.entity;
-    const boy = tr.children[1].querySelector("select").value;
-    const girl = tr.children[2].querySelector("select").value;
-    data.entries[ent] = { boy, girl };
-  });
-
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "HoroscopeMatching.json";
-  a.click();
-}
-
-/* ===================== LOAD ===================== */
-
-function loadChart(){
-  const inp=document.getElementById("fileInput");
-  inp.value="";
-  inp.click();
-
-  inp.onchange=e=>{
-    const file=e.target.files[0];
-    if(!file) return;
-
-    const reader=new FileReader();
-    reader.onload=()=>{
-      const d=JSON.parse(reader.result);
-
-      document.querySelector(`input[name="sys"][value="${d.system}"]`).checked=true;
-      document.getElementById("ignorePadas").checked=d.ignorePadas;
-      document.getElementById("rkLink").checked=d.rkLink;
-
-      [...tbody.children].forEach(tr=>{
-        const ent=tr.dataset.entity;
-        if(d.entries[ent]){
-          tr.children[1].querySelector("select").value=d.entries[ent].boy;
-          tr.children[2].querySelector("select").value=d.entries[ent].girl;
-        }
-      });
-
-     setTimeout(()=>{
-	  recalcTable2();
-	  recalcTable3();
-	  recalcTable4();
-	  recalcTable5();
-	},0);
-
-    };
-    reader.readAsText(file);
-  };
-}
-
-/* ===================== CLEAR ===================== */
-
-function clearAll(){
-  const ok = confirm(
-    "⚠️ WARNING\n\nThis will clear all entered horoscope data.\nThis action cannot be undone.\n\nContinue?"
-  );
-  if(!ok) return;
-
-  document.querySelectorAll("select").forEach(s=>s.value="");
-  document.getElementById("ignorePadas").checked=false;
-  document.getElementById("rkLink").checked=true;
-  document.querySelector('input[name="sys"][value="vedic"]').checked=true;
-
-document.querySelectorAll(
-  "#resultTable td,#lagnaPlanetTable td,#tatvaTable td,#taraTable td"
-).forEach(td=>td.innerText="");
-
-
-}
-</script>
 
 
 
@@ -427,6 +394,107 @@ tbody.addEventListener("change",e=>{
   otherSelect.value=opposite;
 });
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+/* ===================== SAVE ===================== */
+
+function saveChart(){
+  const data = {
+    system: document.querySelector('input[name="sys"]:checked').value,
+    ignorePadas: document.getElementById("ignorePadas").checked,
+    rkLink: document.getElementById("rkLink").checked,
+    entries: {}
+  };
+
+  [...tbody.querySelectorAll('tr[data-entity]')].forEach(tr=>{
+    const ent = tr.dataset.entity;
+    const boy = tr.children[1].querySelector("select").value;
+    const girl = tr.children[2].querySelector("select").value;
+    data.entries[ent] = { boy, girl };
+  });
+
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "HoroscopeMatching.json";
+  a.click();
+}
+
+/* ===================== LOAD ===================== */
+
+function loadChart(){
+  const inp=document.getElementById("fileInput");
+  inp.value="";
+  inp.click();
+
+  inp.onchange=e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const d=JSON.parse(reader.result);
+
+      document.querySelector(`input[name="sys"][value="${d.system}"]`).checked=true;
+      document.getElementById("ignorePadas").checked=d.ignorePadas;
+      document.getElementById("rkLink").checked=d.rkLink;
+
+      [...tbody.querySelectorAll('tr[data-entity]')].forEach(tr=>{
+        const ent=tr.dataset.entity;
+        if(d.entries[ent]){
+          tr.children[1].querySelector("select").value=d.entries[ent].boy;
+          tr.children[2].querySelector("select").value=d.entries[ent].girl;
+        }
+      });
+
+      setTimeout(()=>{
+        recalcTable2();
+        recalcTable3();
+        recalcTable4();
+        recalcTable5();
+        recalcTable6();   // 🔥 NOW IT RUNS
+      },0);
+    };
+    reader.readAsText(file);
+  };
+}
+
+/* ===================== CLEAR ===================== */
+
+function clearAll(){
+  if(!confirm("Clear all data?")) return;
+
+  document.querySelectorAll("select").forEach(s=>s.value="");
+  document.getElementById("ignorePadas").checked=false;
+  document.getElementById("rkLink").checked=true;
+
+  document.querySelectorAll(
+    "#resultTable td,#lagnaPlanetTable td,#tatvaTable td,#taraTable td,#guna36Table td:not(:first-child)"
+  ).forEach(td=>td.innerText="");
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -681,15 +749,6 @@ function recalcTable2(){
 
 
 
-/* ===================== HOOK EVENTS ===================== */
-
-document.addEventListener("change",e=>{
-  if(e.target.matches("select,input")){
-    recalcTable2();
-    recalcTable3();
-    recalcTable4();
-  }
-});
 
 
 
@@ -916,13 +975,7 @@ function equivalentHouseTable3(a,b){
 
 
 
-/* ===================== HOOK TABLE 3 ===================== */
 
-document.addEventListener("change",e=>{
-  if(e.target.matches("select,input")){
-    recalcTable3();
-  }
-});
 </script>
 
 
@@ -1276,8 +1329,7 @@ function recalcTable5(){
 
 
 
-
-/* ===================== HOOK ===================== */
+/* ===================== MASTER GLOBAL HOOK ===================== */
 
 document.addEventListener("change",e=>{
   if(e.target.matches("select,input")){
@@ -1295,7 +1347,6 @@ document.addEventListener("change",e=>{
 
 
 
-
 </script>
 
 
@@ -1305,10 +1356,426 @@ document.addEventListener("change",e=>{
 
 
 
+<!-- ================= TABLE 6 : 36 GUNA (ASHTA-KOOTA) MATRIX ================= -->
+
+<div class="panel">
+<h2>Table 6 – 36 Guna (Ashta-Koota) Matching</h2>
+
+<table id="guna36Table">
+<thead>
+<tr>
+  <th rowspan="2">Graha</th>
+  <th colspan="8">Ashta-Koota Breakdown</th>
+  <th rowspan="2">Total<br>/ 36</th>
+</tr>
+<tr>
+  <th>Varna<br>(1)</th>
+  <th>Vashya<br>(2)</th>
+  <th>Tara<br>(3)</th>
+  <th>Yoni<br>(4)</th>
+  <th>Graha Maitri<br>(5)</th>
+  <th>Gana<br>(6)</th>
+  <th>Bhakoot<br>(7)</th>
+  <th>Nadi<br>(8)</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr class="guna-lagna" data-entity="Lagna">
+  <td><b>⭐ Lagna</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Chandra">
+  <td><b>Chandra</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Venus">
+  <td><b>Venus</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Mangala">
+  <td><b>Mangala</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Guru">
+  <td><b>Guru</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Budha">
+  <td><b>Budha</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Shani">
+  <td><b>Shani</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Surya">
+  <td><b>Surya</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Rahu">
+  <td><b>Rahu</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Ketu">
+  <td><b>Ketu</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+</tbody>
+</table>
+</div>
 
 
 
 
+
+
+
+
+
+
+
+
+<script>
+/* ===================== TABLE 6 : 36 GUNA ENGINE (FULL REPLACEMENT) ===================== */
+
+/* ===== VARNA ===== */
+const VARNA_MAP = {
+  0:"Kshatriya",1:"Vaishya",2:"Shudra",3:"Brahmin",
+  4:"Kshatriya",5:"Vaishya",6:"Shudra",7:"Brahmin",
+  8:"Kshatriya",9:"Vaishya",10:"Shudra",11:"Brahmin"
+};
+const VARNA_ORDER = ["Shudra","Vaishya","Kshatriya","Brahmin"];
+
+/* ===== VASHYA ===== */
+const VASHYA_MAP = {
+  Aries:["Leo","Scorpio"],
+  Taurus:["Cancer","Libra"],
+  Gemini:["Virgo"],
+  Cancer:["Scorpio","Sagittarius"],
+  Leo:["Libra"],
+  Virgo:["Pisces","Gemini"],
+  Libra:["Virgo","Capricorn"],
+  Scorpio:["Cancer"],
+  Sagittarius:["Pisces"],
+  Capricorn:["Aries","Aquarius"],
+  Aquarius:["Aries"],
+  Pisces:["Capricorn"]
+};
+
+const RASI_LIST = [
+  "Aries","Taurus","Gemini","Cancer","Leo","Virgo",
+  "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"
+];
+
+/* ===== GANA ===== */
+const GANA_MAP = [
+  "Deva","Manushya","Rakshasa","Manushya","Deva","Manushya","Deva","Deva","Rakshasa",
+  "Rakshasa","Manushya","Deva","Deva","Rakshasa","Deva","Rakshasa","Deva","Rakshasa",
+  "Rakshasa","Manushya","Deva","Deva","Rakshasa","Rakshasa",
+  "Manushya","Manushya","Deva"
+];
+
+
+
+
+/* ===== NADI (STANDARD ASTROLOGY ORDER) ===== */
+const NADI_MAP = [
+  // 0–8
+  "Aadi",    // Ashwini
+  "Madhya",  // Bharani
+  "Antya",   // Krittika
+  "Aadi",    // Rohini
+  "Madhya",  // Mrigashira
+  "Antya",   // Ardra
+  "Aadi",    // Punarvasu
+  "Madhya",  // Pushya
+  "Antya",   // Ashlesha
+
+  // 9–17
+  "Aadi",    // Magha
+  "Madhya",  // Purva Phalguni
+  "Antya",   // Uttara Phalguni
+  "Aadi",    // Hasta
+  "Madhya",  // Chitra
+  "Antya",   // Swati
+  "Aadi",    // Vishakha
+  "Madhya",  // Anuradha
+  "Antya",   // Jyeshtha
+
+  // 18–26
+  "Aadi",    // Moola ✅
+  "Madhya",  // Purva Ashadha
+  "Antya",   // Uttara Ashadha
+  "Aadi",    // Shravana
+  "Madhya",  // Dhanishta
+  "Aadi",    // Shatabhisha ✅ FIXED
+  "Antya",   // Purva Bhadrapada
+  "Madhya",  // Uttara Bhadrapada
+  "Aadi"     // Revati
+];
+
+
+/* ===== YONI ===== */
+const YONI_MAP = [
+  "Horse","Elephant","Sheep","Serpent","Deer","Dog","Cat","Sheep","Cat",
+  "Rat","Rat","Cow","Buffalo","Tiger","Buffalo","Tiger","Deer","Dog",
+  "Dog","Monkey","Mongoose","Monkey","Lion","Horse",
+  "Lion","Cow","Elephant"
+];
+
+/* ===== GRAHA RELATION ===== */
+const GRAHA_REL = {
+  Surya:{friend:["Chandra","Mangala","Guru"],enemy:["Shani","Venus"],neutral:["Budha"]},
+  Chandra:{friend:["Surya","Budha"],enemy:[],neutral:["Mangala","Guru","Venus","Shani"]},
+  Mangala:{friend:["Surya","Chandra","Guru"],enemy:["Budha"],neutral:["Venus","Shani"]},
+  Budha:{friend:["Surya","Venus"],enemy:["Chandra"],neutral:["Mangala","Guru","Shani"]},
+  Guru:{friend:["Surya","Chandra","Mangala"],enemy:["Budha","Venus"],neutral:["Shani"]},
+  Venus:{friend:["Budha","Shani"],enemy:["Surya","Chandra"],neutral:["Mangala","Guru"]},
+  Shani:{friend:["Budha","Venus"],enemy:["Surya","Chandra"],neutral:["Mangala","Guru"]},
+  Rahu:{friend:[],enemy:[],neutral:[]},
+  Ketu:{friend:[],enemy:[],neutral:[]}
+};
+
+/* ===== HELPERS ===== */
+function getNakIndex36(p){ return Math.floor(p/4); }
+function getRasiIndex36(p){ return Math.floor(p/9); }
+
+/* ===== CORE CALC ===== */
+function calc36Guna(boyPada,girlPada){
+
+  const bn = getNakIndex36(boyPada);
+  const gn = getNakIndex36(girlPada);
+  const br = getRasiIndex36(boyPada);
+  const gr = getRasiIndex36(girlPada);
+
+  /* VARNA */
+  const varna =
+    VARNA_ORDER.indexOf(VARNA_MAP[br]) >=
+    VARNA_ORDER.indexOf(VARNA_MAP[gr]) ? 1 : 0;
+
+  /* VASHYA */
+  const boyR = RASI_LIST[br];
+  const girlR = RASI_LIST[gr];
+  let vashya = 0;
+  if(VASHYA_MAP[boyR]?.includes(girlR) && VASHYA_MAP[girlR]?.includes(boyR)) vashya=2;
+  else if(VASHYA_MAP[boyR]?.includes(girlR) || VASHYA_MAP[girlR]?.includes(boyR)) vashya=1;
+
+
+
+
+/* ===== TARA (DINA KOOTA – STANDARD APP LOGIC) =====
+Apps (AstroSage / Drik Panchang / ClickAstro) use this:
+Score = 0 or 2
+*/
+
+// Dina / Tara scores
+const DINA_SCORE = [0,2,0,2,0,2,0,2,2];
+
+// Inclusive nakshatra count
+const dinaCount = (gn - bn + 27) % 27 + 1;
+
+// 🔥 APP DIFFERENCE: index = count % 9 (NOT count-1)
+const dinaIndex = dinaCount % 9;
+
+// Final Tara (Dina Koota)
+const tara = DINA_SCORE[dinaIndex];
+
+
+
+
+
+
+
+
+  /* YONI */
+  const yoni = YONI_MAP[bn]===YONI_MAP[gn]?4:2;
+
+  /* GRAHA MAITRI */
+  const bl=nakLords[bn], gl=nakLords[gn];
+  let grahaMaitri=3;
+  if(bl===gl) grahaMaitri=5;
+  else if(GRAHA_REL[bl]?.friend.includes(gl) && GRAHA_REL[gl]?.friend.includes(bl)) grahaMaitri=5;
+  else if(GRAHA_REL[bl]?.friend.includes(gl)) grahaMaitri=4;
+  else if(GRAHA_REL[bl]?.enemy.includes(gl)) grahaMaitri=1;
+
+  /* GANA */
+  let gana=3;
+  if(GANA_MAP[bn]===GANA_MAP[gn]) gana=6;
+  else if(GANA_MAP[bn]==="Rakshasa" && GANA_MAP[gn]==="Deva") gana=0;
+
+  /* BHAKOOT */
+  const bhakoot=[1,4,5,7,8,11].includes((gr-br+12)%12)?0:7;
+
+
+
+
+
+/* NADI (FINAL STANDARD APP LOGIC) */
+/*
+Nadi = 0 if:
+- Same Nadi
+- Different Nakshatra
+- Different Rasi
+*/
+
+let nadi = 8;
+
+const sameNadi      = NADI_MAP[bn] === NADI_MAP[gn];
+const sameNakshatra = bn === gn;
+const sameRasi      = br === gr;
+
+if (sameNadi && !sameNakshatra && !sameRasi) {
+  nadi = 0;
+}
+
+
+
+
+
+
+  const total=varna+vashya+tara+yoni+grahaMaitri+gana+bhakoot+nadi;
+
+  return {varna,vashya,tara,yoni,grahaMaitri,gana,bhakoot,nadi,total};
+}
+
+/* ===== FILL TABLE ===== */
+function recalcTable6(){
+  document.querySelectorAll("#guna36Table tbody tr").forEach(tr=>{
+    const ent=tr.dataset.entity;
+    if(!ent) return;
+    const inRow=tbody.querySelector(`tr[data-entity="${ent}"]`);
+    if(!inRow) return;
+
+    const b=inRow.children[1].querySelector("select").value;
+    const g=inRow.children[2].querySelector("select").value;
+
+    if(b===""||g===""){
+      tr.querySelectorAll("td:not(:first-child)").forEach(td=>td.innerText="");
+      return;
+    }
+
+    const r=calc36Guna(+b,+g);
+    tr.querySelector(".varna").innerText=r.varna;
+    tr.querySelector(".vashya").innerText=r.vashya;
+    tr.querySelector(".tara").innerText=r.tara;
+    tr.querySelector(".yoni").innerText=r.yoni;
+    tr.querySelector(".grahaMaitri").innerText=r.grahaMaitri;
+    tr.querySelector(".gana").innerText=r.gana;
+    tr.querySelector(".bhakoot").innerText=r.bhakoot;
+    tr.querySelector(".nadi").innerText=r.nadi;
+    tr.querySelector(".total").innerText=`${r.total} / 36`;
+  });
+}
+</script>
+
+
+
+
+
+
+
+
+<script>
+/* ===================== FINAL GLOBAL HOOK (TABLE 6 SAFE) ===================== */
+
+document.addEventListener("change",e=>{
+  if(e.target.matches("select,input")){
+    recalcTable6();
+  }
+});
+</script>
 
 
 
