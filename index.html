@@ -216,7 +216,9 @@ select,input{
     <!-- RIGHT SIDE ACTIONS -->
     <div class="action-right">
       <button class="action-btn" onclick="saveChart()">Save</button>
-      <button class="action-btn" onclick="loadChart()">Load</button>
+	  <button class="action-btn" onclick="loadMaleSwiss()">Load Male</button>
+	<button class="action-btn" onclick="loadFemaleSwiss()">Load Female</button>
+
       <button class="action-btn clear" onclick="clearAll()">Clear</button>
     </div>
 
@@ -228,6 +230,8 @@ select,input{
 
 
 <input type="file" id="fileInput" accept=".json" style="display:none"/>
+<input type="file" id="maleSwissInput" accept=".json" style="display:none"/>
+<input type="file" id="femaleSwissInput" accept=".json" style="display:none"/>
 
 
 
@@ -332,8 +336,10 @@ const orderedEntities = [
   "Rahu",
   "Ketu",
   "_gap_",
-  "Lagn Progs",
-  "Rasi Progs"
+   "Lagn Progs",
+  "Rasi Progs",
+  "ALP Progs"
+
 ];
 
 // entities WITHOUT gaps (used for calculations)
@@ -371,12 +377,14 @@ orderedEntities.forEach(e=>{
 /* ===================== RAHU–KETU LINK ===================== */
 
 tbody.addEventListener("change",e=>{
+  if(IS_SWISS_LOADING) return;
   if(!document.getElementById("rkLink").checked) return;
   if(e.target.tagName!=="SELECT") return;
 
   const tr=e.target.closest("tr");
   const entity=tr.dataset.entity;
   if(entity!=="Rahu" && entity!=="Ketu") return;
+if(tr.dataset.entity==="ALP Progs") return;
 
   const val=e.target.value;
   if(val==="") return;
@@ -473,7 +481,7 @@ function loadChart(){
 /* ===================== CLEAR ===================== */
 
 function clearAll(){
-  if(!confirm("Clear all data?")) return;
+ 
 
   document.querySelectorAll("select").forEach(s=>s.value="");
   document.getElementById("ignorePadas").checked=false;
@@ -1237,8 +1245,10 @@ const taraOrder = [
   "Ketu",
   "_gap_",
   "Lagn Progs",
-  "Rasi Progs"
+  "Rasi Progs",
+  "ALP Progs"
 ];
+
 
 const taraBody = document.querySelector("#taraTable tbody");
 
@@ -1332,6 +1342,8 @@ function recalcTable5(){
 /* ===================== MASTER GLOBAL HOOK ===================== */
 
 document.addEventListener("change",e=>{
+  if(IS_SWISS_LOADING) return;
+
   if(e.target.matches("select,input")){
     recalcTable2();
     recalcTable3();
@@ -1511,6 +1523,152 @@ document.addEventListener("change",e=>{
   <td class="nadi"></td>
   <td class="total"></td>
 </tr>
+	
+<tr data-entity="Cusp2">
+  <td><b>Cusp 2</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp3">
+  <td><b>Cusp 3</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp4">
+  <td><b>Cusp 4</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp5">
+  <td><b>Cusp 5</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp6">
+  <td><b>Cusp 6</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp7">
+  <td><b>Cusp 7</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp8">
+  <td><b>Cusp 8</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp9">
+  <td><b>Cusp 9</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp10">
+  <td><b>Cusp 10</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp11">
+  <td><b>Cusp 11</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp12">
+  <td><b>Cusp 12</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+
+
 
 </tbody>
 </table>
@@ -1559,6 +1717,36 @@ const RASI_LIST = [
   "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"
 ];
 
+
+
+
+/* ===================== VASHYA GROUPS (ASHTA-KOOTA) ===================== */
+
+const VASHYA_GROUP = {
+  Aries: "Chatushpada",
+  Taurus: "Chatushpada",
+  Gemini: "Dwipada",
+  Cancer: "Jalachara",
+  Leo: "Vanachara",
+  Virgo: "Dwipada",
+  Libra: "Dwipada",
+  Scorpio: "Keeta",
+  Sagittarius: "Dwipada",
+  Capricorn: "Jalachara",
+  Aquarius: "Dwipada",
+  Pisces: "Jalachara"
+};
+
+const VASHYA_MATRIX = {
+  Chatushpada: { Chatushpada:2, Jalachara:0, Vanachara:2, Keeta:0, Dwipada:0 },
+  Jalachara:   { Chatushpada:1, Jalachara:2, Vanachara:0, Keeta:1, Dwipada:1 },
+  Vanachara:   { Chatushpada:1, Jalachara:0, Vanachara:2, Keeta:0, Dwipada:0 },
+  Keeta:       { Chatushpada:0, Jalachara:1, Vanachara:0, Keeta:2, Dwipada:1 },
+  Dwipada:     { Chatushpada:1, Jalachara:1, Vanachara:1, Keeta:0, Dwipada:2 }
+};
+
+
+
 /* ===== GANA ===== */
 const GANA_MAP = [
   "Deva","Manushya","Rakshasa","Manushya","Deva","Manushya","Deva","Deva","Rakshasa",
@@ -1570,41 +1758,40 @@ const GANA_MAP = [
 
 
 
-/* ===== NADI (STANDARD ASTROLOGY ORDER) ===== */
+
+/* ===== NADI (LOCKED TO REFERENCE APP) ===== */
 const NADI_MAP = [
-  // 0–8
   "Aadi",    // Ashwini
   "Madhya",  // Bharani
   "Antya",   // Krittika
-  "Aadi",    // Rohini
-  "Madhya",  // Mrigashira
+  "Madhya",  // Rohini
+  "Aadi",    // Mrigashira
   "Antya",   // Ardra
   "Aadi",    // Punarvasu
   "Madhya",  // Pushya
   "Antya",   // Ashlesha
 
-  // 9–17
   "Aadi",    // Magha
   "Madhya",  // Purva Phalguni
   "Antya",   // Uttara Phalguni
-  "Aadi",    // Hasta
+  "Aadi",    // Hasta ✅
   "Madhya",  // Chitra
   "Antya",   // Swati
-  "Aadi",    // Vishakha
+  "Antya",   // Vishakha ✅
   "Madhya",  // Anuradha
   "Antya",   // Jyeshtha
 
-  // 18–26
-  "Aadi",    // Moola ✅
+  "Aadi",    // Moola
   "Madhya",  // Purva Ashadha
   "Antya",   // Uttara Ashadha
   "Aadi",    // Shravana
   "Madhya",  // Dhanishta
-  "Aadi",    // Shatabhisha ✅ FIXED
+  "Aadi",    // Shatabhisha
   "Antya",   // Purva Bhadrapada
   "Madhya",  // Uttara Bhadrapada
   "Aadi"     // Revati
 ];
+
 
 
 /* ===== YONI ===== */
@@ -1620,10 +1807,21 @@ const GRAHA_REL = {
   Surya:{friend:["Chandra","Mangala","Guru"],enemy:["Shani","Venus"],neutral:["Budha"]},
   Chandra:{friend:["Surya","Budha"],enemy:[],neutral:["Mangala","Guru","Venus","Shani"]},
   Mangala:{friend:["Surya","Chandra","Guru"],enemy:["Budha"],neutral:["Venus","Shani"]},
-  Budha:{friend:["Surya","Venus"],enemy:["Chandra"],neutral:["Mangala","Guru","Shani"]},
+  
   Guru:{friend:["Surya","Chandra","Mangala"],enemy:["Budha","Venus"],neutral:["Shani"]},
   Venus:{friend:["Budha","Shani"],enemy:["Surya","Chandra"],neutral:["Mangala","Guru"]},
-  Shani:{friend:["Budha","Venus"],enemy:["Surya","Chandra"],neutral:["Mangala","Guru"]},
+  Budha:{
+  friend:["Surya","Venus","Shani"],
+  enemy:["Chandra"],
+  neutral:["Mangala","Guru"]
+},
+Shani:{
+  friend:["Budha","Venus"],
+  enemy:["Surya","Chandra"],
+  neutral:["Mangala","Guru"]
+},
+
+  
   Rahu:{friend:[],enemy:[],neutral:[]},
   Ketu:{friend:[],enemy:[],neutral:[]}
 };
@@ -1632,92 +1830,160 @@ const GRAHA_REL = {
 function getNakIndex36(p){ return Math.floor(p/4); }
 function getRasiIndex36(p){ return Math.floor(p/9); }
 
-/* ===== CORE CALC ===== */
-function calc36Guna(boyPada,girlPada){
-
-  const bn = getNakIndex36(boyPada);
-  const gn = getNakIndex36(girlPada);
-  const br = getRasiIndex36(boyPada);
-  const gr = getRasiIndex36(girlPada);
-
-  /* VARNA */
-  const varna =
-    VARNA_ORDER.indexOf(VARNA_MAP[br]) >=
-    VARNA_ORDER.indexOf(VARNA_MAP[gr]) ? 1 : 0;
-
-  /* VASHYA */
-  const boyR = RASI_LIST[br];
-  const girlR = RASI_LIST[gr];
-  let vashya = 0;
-  if(VASHYA_MAP[boyR]?.includes(girlR) && VASHYA_MAP[girlR]?.includes(boyR)) vashya=2;
-  else if(VASHYA_MAP[boyR]?.includes(girlR) || VASHYA_MAP[girlR]?.includes(boyR)) vashya=1;
 
 
 
-
-/* ===== TARA (DINA KOOTA – STANDARD APP LOGIC) =====
-Apps (AstroSage / Drik Panchang / ClickAstro) use this:
-Score = 0 or 2
-*/
-
-// Dina / Tara scores
-const DINA_SCORE = [0,2,0,2,0,2,0,2,2];
-
-// Inclusive nakshatra count
-const dinaCount = (gn - bn + 27) % 27 + 1;
-
-// 🔥 APP DIFFERENCE: index = count % 9 (NOT count-1)
-const dinaIndex = dinaCount % 9;
-
-// Final Tara (Dina Koota)
-const tara = DINA_SCORE[dinaIndex];
-
-
-
-
-
-
-
-
-  /* YONI */
-  const yoni = YONI_MAP[bn]===YONI_MAP[gn]?4:2;
-
-  /* GRAHA MAITRI */
-  const bl=nakLords[bn], gl=nakLords[gn];
-  let grahaMaitri=3;
-  if(bl===gl) grahaMaitri=5;
-  else if(GRAHA_REL[bl]?.friend.includes(gl) && GRAHA_REL[gl]?.friend.includes(bl)) grahaMaitri=5;
-  else if(GRAHA_REL[bl]?.friend.includes(gl)) grahaMaitri=4;
-  else if(GRAHA_REL[bl]?.enemy.includes(gl)) grahaMaitri=1;
-
-  /* GANA */
-  let gana=3;
-  if(GANA_MAP[bn]===GANA_MAP[gn]) gana=6;
-  else if(GANA_MAP[bn]==="Rakshasa" && GANA_MAP[gn]==="Deva") gana=0;
-
-  /* BHAKOOT */
-  const bhakoot=[1,4,5,7,8,11].includes((gr-br+12)%12)?0:7;
-
-
-
-
-
-/* NADI (FINAL STANDARD APP LOGIC) */
+/* ===================== MATCHING DIRECTION ===================== */
 /*
-Nadi = 0 if:
-- Same Nadi
-- Different Nakshatra
-- Different Rasi
+Ashta-Koota standard:
+ALL counts are done from FEMALE → MALE
+Girl is the reference, Boy is the target
+*/
+function getMatchNakIndices(boyPada, girlPada){
+  return {
+    fromNak: Math.floor(girlPada / 4), // FEMALE
+    toNak:   Math.floor(boyPada  / 4)  // MALE
+  };
+}
+
+function getMatchRasiIndices(boyPada, girlPada){
+  return {
+    fromRasi: Math.floor(girlPada / 9), // FEMALE
+    toRasi:   Math.floor(boyPada  / 9)  // MALE
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function calc36Guna(boyPada, girlPada){
+
+  const bn = Math.floor(boyPada / 4);
+  const gn = Math.floor(girlPada / 4);
+  const br = Math.floor(boyPada / 9);
+  const gr = Math.floor(girlPada / 9);
+
+
+
+
+
+
+
+
+/* ================= VARNA (1) ================= */
+/*
+Ashta-Koota Varna (CLASSICAL – LOCKED)
+
+Rule:
+Bride Varna must be
+EQUAL TO or LOWER THAN
+Groom Varna → PASS (1)
+Else → FAIL (0)
+
+Hierarchy:
+Shudra < Vaishya < Kshatriya < Brahmin
 */
 
-let nadi = 8;
+let varna = 0;
 
-const sameNadi      = NADI_MAP[bn] === NADI_MAP[gn];
-const sameNakshatra = bn === gn;
-const sameRasi      = br === gr;
+// Bride & Groom rasi indices already exist
+const brideVarna = VARNA_MAP[gr]; // girl rasi
+const groomVarna = VARNA_MAP[br]; // boy rasi
 
-if (sameNadi && !sameNakshatra && !sameRasi) {
-  nadi = 0;
+const brideRank = VARNA_ORDER.indexOf(brideVarna);
+const groomRank = VARNA_ORDER.indexOf(groomVarna);
+
+if (brideRank <= groomRank) {
+  varna = 1;
+} else {
+  varna = 0;
+}
+
+
+
+
+  /* ================= VASHYA (2) ================= */
+  // STRICT ASHTA-KOOTA VASHYA
+  // Bride → Groom
+  // Rāśi based ONLY
+
+  let vashya = 0;
+
+  const VASHYA_GROUP_EXACT = {
+    Aries: "Chatushpada",
+    Taurus: "Chatushpada",
+
+    Gemini: "Dwipada",
+    Virgo: "Dwipada",
+    Libra: "Dwipada",
+    Sagittarius: "Dwipada",
+    Aquarius: "Dwipada",
+
+    Cancer: "Jalachara",
+    Pisces: "Jalachara",
+    Capricorn: "Jalachara",
+
+    Leo: "Vanachara",
+    Scorpio: "Keeta"
+  };
+
+  const VASHYA_MATRIX_EXACT = {
+    Chatushpada: { Chatushpada:2, Jalachara:0, Vanachara:2, Keeta:0, Dwipada:0 },
+    Jalachara:   { Chatushpada:1, Jalachara:2, Vanachara:0, Keeta:1, Dwipada:1 },
+    Vanachara:   { Chatushpada:1, Jalachara:0, Vanachara:2, Keeta:0, Dwipada:0 },
+    Keeta:       { Chatushpada:0, Jalachara:1, Vanachara:0, Keeta:2, Dwipada:1 },
+    Dwipada:     { Chatushpada:1, Jalachara:1, Vanachara:1, Keeta:0, Dwipada:2 }
+  };
+
+  const brideRasi = RASI_LIST[gr];
+  const groomRasi = RASI_LIST[br];
+
+  const brideGroup = VASHYA_GROUP_EXACT[brideRasi];
+  const groomGroup = VASHYA_GROUP_EXACT[groomRasi];
+
+  if (brideGroup && groomGroup) {
+    vashya = VASHYA_MATRIX_EXACT[brideGroup][groomGroup] ?? 0;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================= TARA / DINA (3) ================= */
+// FEMALE → MALE ONLY (LOCKED BY SCREENSHOTS)
+
+const fromNak = Math.floor(girlPada / 4);
+const toNak   = Math.floor(boyPada  / 4);
+
+const count = (toNak - fromNak + 27) % 27 + 1;
+const taraNo = count % 9;
+
+let tara = 0;
+
+// Janma(1), Vipath(3), Pratyari(5), Nidana(7) → 0
+if ([1,3,5,7].includes(taraNo)) {
+  tara = 0;
+} 
+// Sampath(2), Kshema(4), Sadhana(6), Mithra(8), Ati-Mithra(0) → 3
+else {
+  tara = 3;
 }
 
 
@@ -1725,28 +1991,331 @@ if (sameNadi && !sameNakshatra && !sameRasi) {
 
 
 
-  const total=varna+vashya+tara+yoni+grahaMaitri+gana+bhakoot+nadi;
 
-  return {varna,vashya,tara,yoni,grahaMaitri,gana,bhakoot,nadi,total};
+
+
+
+
+
+  /* ================= YONI (4) ================= */
+  let yoni = 0;
+
+  const yBoy = YONI_MAP[bn];
+  const yGirl = YONI_MAP[gn];
+
+  // Same Yoni
+  if (yBoy === yGirl) {
+    yoni = 4;
+  }
+  else {
+
+    // Extreme enemy pairs → 0
+    const extremeEnemies = [
+      ["Horse","Elephant"],
+      ["Cat","Rat"],
+      ["Dog","Deer"],
+      ["Serpent","Mongoose"],
+      ["Lion","Elephant"]
+    ];
+
+    // Mild enemy pairs → 1
+    const mildEnemies = [
+      ["Tiger","Buffalo"],
+      ["Monkey","Mongoose"],
+      ["Lion","Dog"]
+    ];
+
+    const isExtreme = extremeEnemies.some(
+      p => (p[0]===yBoy && p[1]===yGirl) || (p[0]===yGirl && p[1]===yBoy)
+    );
+
+    const isMild = mildEnemies.some(
+      p => (p[0]===yBoy && p[1]===yGirl) || (p[0]===yGirl && p[1]===yBoy)
+    );
+
+    if (isExtreme) {
+      yoni = 0;
+    }
+    else if (isMild) {
+      yoni = 1;
+    }
+    else {
+      yoni = 2;
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  /* ================= GRAHA MAITRI (5) ================= */
+  const normalize = l => (
+    l === "Jupiter" ? "Guru" :
+    l === "Saturn"  ? "Shani" :
+    l
+  );
+
+  // Graha Maitri MUST use RASI LORDS (not Nakshatra lords)
+		const RASI_LORDS = [
+		  "Mangala", // Aries
+		  "Venus",   // Taurus
+		  "Budha",   // Gemini
+		  "Chandra", // Cancer
+		  "Surya",   // Leo
+		  "Budha",   // Virgo
+		  "Venus",   // Libra
+		  "Mangala", // Scorpio
+		  "Guru",    // Sagittarius
+		  "Shani",   // Capricorn
+		  "Shani",   // Aquarius
+		  "Guru"     // Pisces
+		];
+
+		const bl = RASI_LORDS[br];
+		const gl = RASI_LORDS[gr];
+		let grahaMaitri = 0;
+
+
+
+		/* ===== SAME RASI LORD OVERRIDE ===== */
+		if (bl === gl) {
+		  grahaMaitri = 5;
+		}
+		else {
+
+
+	/* ===== OVERRIDE GRAHA MAITRI (ASHTA-KOOTA CORRECT LADDER) ===== */
+
+const relBG = {
+  f: GRAHA_REL[bl]?.friend.includes(gl),
+  n: GRAHA_REL[bl]?.neutral.includes(gl),
+  e: GRAHA_REL[bl]?.enemy.includes(gl)
+};
+
+const relGB = {
+  f: GRAHA_REL[gl]?.friend.includes(bl),
+  n: GRAHA_REL[gl]?.neutral.includes(bl),
+  e: GRAHA_REL[gl]?.enemy.includes(bl)
+};
+
+// Same lord already handled above (5)
+
+if (relBG.f && relGB.f) {
+  grahaMaitri = 5;
 }
+else if (
+  (relBG.f && relGB.n) ||
+  (relBG.n && relGB.f)
+) {
+  grahaMaitri = 4;
+}
+else if (relBG.n && relGB.n) {
+  grahaMaitri = 3;
+}
+else if (
+  (relBG.f && relGB.e) ||
+  (relBG.e && relGB.f)
+) {
+  grahaMaitri = 2;
+}
+else if (
+  (relBG.n && relGB.e) ||
+  (relBG.e && relGB.n)
+) {
+  grahaMaitri = 1;
+}
+else {
+  grahaMaitri = 0;
+}
+}
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+  /* ================= GANA (6) ================= */
+  // STRICT ASHTA-KOOTA GANA
+  // Bride → Groom
+
+  let gana = 0;
+
+  const brideGana = GANA_MAP[gn];
+  const groomGana = GANA_MAP[bn];
+
+  const GANA_MATRIX_EXACT = {
+    Deva: {
+      Deva: 6,
+      Manushya: 5,
+      Rakshasa: 1
+    },
+    Manushya: {
+      Deva: 5,
+      Manushya: 6,
+      Rakshasa: 0
+    },
+    Rakshasa: {
+      Deva: 1,
+      Manushya: 0,
+      Rakshasa: 6
+    }
+  };
+
+  if (brideGana && groomGana) {
+    gana = GANA_MATRIX_EXACT[brideGana][groomGana] ?? 0;
+  }
+
+
+
+
+
+
+
+  /* ================= BHAKOOT (7) ================= */
+  // STRICT ASHTA-KOOTA
+  // Rāśi distance FEMALE → MALE
+
+  let bhakoot = 0;
+
+  const rasiDist = (br - gr + 12) % 12;
+
+  // Auspicious
+  if ([0, 2, 4, 6, 8, 10].includes(rasiDist)) {
+    bhakoot = 7;
+  }
+
+  // Inauspicious: 2-12, 5-9, 6-8
+  if ([1, 4, 5, 7, 8].includes(rasiDist)) {
+    bhakoot = 0;
+  }
+
+
+
+
+
+
+
+  /* ================= NADI (8) ================= */
+  // LOCKED TO REFERENCE APP
+  // Nakshatra based ONLY
+  // SAME Nadi → 0
+  // DIFFERENT Nadi → 8
+
+  let nadi = 0;
+
+  // Explicit nakshatra indices (NO reuse)
+  const girlNak = Math.floor(girlPada / 4);
+  const boyNak  = Math.floor(boyPada  / 4);
+
+  const girlNadi = NADI_MAP[girlNak];
+  const boyNadi  = NADI_MAP[boyNak];
+
+  if (girlNadi !== boyNadi) {
+    nadi = 8;
+  } else {
+    nadi = 0;
+  }
+
+
+
+
+
+
+
+
+
+
+  const total =
+varna + vashya + tara + yoni +
+grahaMaitri + gana + bhakoot + nadi;
+
+
+
+  return {
+    varna,
+    vashya,
+    tara,
+    yoni,
+    grahaMaitri,
+    gana,
+    bhakoot,
+    nadi,
+    total
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ===== FILL TABLE ===== */
 function recalcTable6(){
   document.querySelectorAll("#guna36Table tbody tr").forEach(tr=>{
     const ent=tr.dataset.entity;
     if(!ent) return;
-    const inRow=tbody.querySelector(`tr[data-entity="${ent}"]`);
-    if(!inRow) return;
+   
+   
+   
+	   let boyPada, girlPada;
 
-    const b=inRow.children[1].querySelector("select").value;
-    const g=inRow.children[2].querySelector("select").value;
+	if(ent.startsWith("Cusp")){
+	  const n = Number(ent.replace("Cusp",""));
+	  boyPada  = CUSP_PADAS.boy[n];
+	  girlPada = CUSP_PADAS.girl[n];
+	}else{
+	  const inRow=tbody.querySelector(`tr[data-entity="${ent}"]`);
+	  if(!inRow) return;
+	  boyPada  = inRow.children[1].querySelector("select").value;
+	  girlPada = inRow.children[2].querySelector("select").value;
+	}
 
-    if(b===""||g===""){
+   
+   
+   
+   
+   
+	
+    
+
+    if(boyPada==null || girlPada==null || boyPada==="" || girlPada===""){
       tr.querySelectorAll("td:not(:first-child)").forEach(td=>td.innerText="");
       return;
     }
 
-    const r=calc36Guna(+b,+g);
+    const r = calc36Guna(+boyPada, +girlPada);
+	
+	
+
+
+
+	
+	
     tr.querySelector(".varna").innerText=r.varna;
     tr.querySelector(".vashya").innerText=r.vashya;
     tr.querySelector(".tara").innerText=r.tara;
@@ -1755,7 +2324,13 @@ function recalcTable6(){
     tr.querySelector(".gana").innerText=r.gana;
     tr.querySelector(".bhakoot").innerText=r.bhakoot;
     tr.querySelector(".nadi").innerText=r.nadi;
-    tr.querySelector(".total").innerText=`${r.total} / 36`;
+	
+	
+		// SHOW NUMERIC TOTAL FOR LAGNA (DEBUG / COMPARATIVE MODE)
+tr.querySelector(".total").innerText = `${r.total} / 36`;
+
+		
+		
   });
 }
 </script>
@@ -1770,13 +2345,281 @@ function recalcTable6(){
 <script>
 /* ===================== FINAL GLOBAL HOOK (TABLE 6 SAFE) ===================== */
 
-document.addEventListener("change",e=>{
+document.addEventListener("change", e=>{
+  if(IS_SWISS_LOADING) return;
   if(e.target.matches("select,input")){
     recalcTable6();
   }
 });
+
+
+
 </script>
 
+
+
+
+
+
+
+
+
+
+
+
+<script>
+/* ===================== UNIVERSAL SWISS JSON SUPPORT ===================== */
+
+let IS_SWISS_LOADING = false;
+
+
+// Store cusp padas (2–12)
+const CUSP_PADAS = {
+  boy: {},
+  girl: {}
+};
+
+
+
+/* DEGREE → PADA (0–107) */
+function degreeToPada(deg){
+  deg = ((deg % 360) + 360) % 360;
+
+  const PADA_SPAN = 360 / 108;
+  const EPS = 1e-6;   // 🔥 important for fast Vimshottari progress
+
+  return Math.floor((deg + EPS) / PADA_SPAN);
+}
+
+
+
+/* ===================== PROGRESSION ENGINES ===================== */
+
+// Years lived from DOB (UTC safe)
+function yearsSince(dobUtc){
+  const dobMs = Date.parse(dobUtc);      // UTC
+  const nowMs = Date.now();              // UTC
+  return (nowMs - dobMs) / (365.2422 * 24 * 60 * 60 * 1000);
+}
+
+/* ===== ALP PROGRESSION (ABSOLUTE) ===== */
+/* ===== ALP (ABSOLUTE LAGNA PROGRESSION) ===== */
+/*
+Rule:
+- Natal Lagna = 0 reference
+- 1 year = 3°
+- 10 years = 30°
+*/
+
+function calcALPDegree(natalLagnaDeg, dobUtc){
+  return (natalLagnaDeg + yearsSince(dobUtc) * 3) % 360;
+}
+
+/* ===== VIMSHOTTARI STAR-LORD PROGRESSION ===== */
+const DASA_YEARS = {
+  Ketu:7, Venus:20, Surya:6, Chandra:10,
+  Mangala:7, Rahu:18, Jupiter:16, Saturn:19, Budha:17
+};
+
+
+
+
+
+
+
+
+
+
+/* ===== TRUE VIMSHOTTARI PROGRESSION (NAKSHATRA BASED) ===== */
+/*
+Progress stays INSIDE the natal Nakshatra (13°20′)
+*/
+
+/* ===== TRUE VIMSHOTTARI PROGRESSION (WITH MAHADASHA SHIFT) ===== */
+
+const VIM_ORDER = [
+  "Ketu","Venus","Surya","Chandra",
+  "Mangala","Rahu","Jupiter","Saturn","Budha"
+];
+
+const NAK_SPAN = 360 / 27; // 13.333333°
+
+/* ===== TRUE VIMSHOTTARI PROGRESSION (STANDARD MOON METHOD) ===== */
+/*
+Used for:
+- Vimshottari Moon Progress
+- Vimshottari Lagna Progress
+
+Rule:
+- Speed is fixed by BIRTH nakshatra lord
+- Progress is CONTINUOUS
+- Nakshatra changes naturally by degree crossing
+*/
+
+function calcVimshottariProgress(natalDeg, dobUtc){
+
+  const NAK_SPAN = 360 / 27; // 13°20'
+  const livedYears = yearsSince(dobUtc);
+
+  // Birth nakshatra
+  const birthNak = Math.floor(natalDeg / NAK_SPAN);
+  const nakStart = birthNak * NAK_SPAN;
+  const offsetInNak = natalDeg - nakStart;
+
+  const lord = nakLords[birthNak];
+  const dashaYears = DASA_YEARS[lord];
+
+  // 🔥 CRITICAL FIX: Mahadasha balance at birth
+  const balanceAtBirth =
+    ((NAK_SPAN - offsetInNak) / NAK_SPAN) * dashaYears;
+
+  let yearsLeft = livedYears - balanceAtBirth;
+
+  // Still inside birth Mahadasha
+  if (yearsLeft <= 0) {
+    const progressedOffset =
+      offsetInNak + (livedYears / dashaYears) * NAK_SPAN;
+    return nakStart + progressedOffset;
+  }
+
+  // Move nakshatra by nakshatra
+  let curNak = birthNak;
+
+  while (true) {
+    curNak = (curNak + 1) % 27;
+    const curLord = nakLords[curNak];
+    const spanYears = DASA_YEARS[curLord];
+
+    if (yearsLeft <= spanYears) {
+      const progOffset =
+        (yearsLeft / spanYears) * NAK_SPAN;
+      return curNak * NAK_SPAN + progOffset;
+    }
+
+    yearsLeft -= spanYears;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* APPLY JSON TO COLUMN */
+function applySwissJson(json, columnIndex){
+  IS_SWISS_LOADING = true;
+  const sys = getSystem();
+  const ay = json.ayanamshas?.Lahiri || json.ayanamshas?.["KP New"];
+  if(!ay) return alert("Unsupported JSON: No Lahiri/KP data");
+
+  const planetMap = ay.planets;
+  
+  // ===== HOUSE CUSPS (Swiss Ephemeris) =====
+const cusps = ay.houses?.cusps || ay.cusps;
+if(cusps){
+  for(let i=2;i<=12;i++){
+    const deg = cusps[i];
+    if(typeof deg === "number"){
+      CUSP_PADAS[columnIndex === 1 ? "boy" : "girl"][i] = degreeToPada(deg);
+    }
+  }
+}
+
+  
+  
+  
+  const natalLagnaDeg = ay.lagna;
+const natalMoonDeg  = planetMap.Chandra;
+
+
+  const setVal = (entity, deg)=>{
+    const row = [...tbody.children].find(r=>r.dataset?.entity===entity);
+    if(!row) return;
+    row.children[columnIndex].querySelector("select").value = degreeToPada(deg);
+  };
+
+  setVal("Lagna", natalLagnaDeg);
+
+  setVal("Surya",   planetMap.Surya);
+  setVal("Chandra", planetMap.Chandra);
+  setVal("Mangala", planetMap.Mangala);
+  setVal("Budha",   planetMap.Budha);
+  setVal("Guru",    planetMap.Jupiter);
+  setVal("Venus",   planetMap.Venus);
+  setVal("Shani",   planetMap.Saturn);
+  setVal("Rahu",    planetMap.Rahu_true ?? planetMap.Rahu);
+  setVal("Ketu",    planetMap.Ketu_true ?? planetMap.Ketu);
+
+
+
+
+
+  /* ===== PROGRESSIONS AUTO FILL ===== */
+
+  const dobUtc = json.meta?.datetime_utc;
+  if(dobUtc){
+
+    // 1️⃣ LAGNA PROGS (Vimshottari Lagna – Nakshatra based)
+	const lagnaProgDeg = calcVimshottariProgress(natalLagnaDeg, dobUtc);
+	setVal("Lagn Progs", lagnaProgDeg);
+
+	// 2️⃣ RASI PROGS (Vimshottari Moon – Nakshatra based)
+	const moonProgDeg = calcVimshottariProgress(natalMoonDeg, dobUtc);
+	setVal("Rasi Progs", moonProgDeg);
+
+	// 3️⃣ ALP PROGS (Absolute Lagna Progress)
+	const alpDeg = calcALPDegree(natalLagnaDeg, dobUtc);
+	setVal("ALP Progs", alpDeg);
+
+
+  }
+
+
+
+
+
+
+
+  recalcTable2();
+  recalcTable3();
+  recalcTable4();
+  recalcTable5();
+  recalcTable6();
+  
+  
+    IS_SWISS_LOADING = false;
+
+}
+
+/* LOADERS */
+function loadMaleSwiss(){
+  const inp=document.getElementById("maleSwissInput");
+  inp.value="";
+  inp.click();
+  inp.onchange=e=>{
+    const r=new FileReader();
+    r.onload=()=>applySwissJson(JSON.parse(r.result),1);
+    r.readAsText(e.target.files[0]);
+  };
+}
+
+function loadFemaleSwiss(){
+  const inp=document.getElementById("femaleSwissInput");
+  inp.value="";
+  inp.click();
+  inp.onchange=e=>{
+    const r=new FileReader();
+    r.onload=()=>applySwissJson(JSON.parse(r.result),2);
+    r.readAsText(e.target.files[0]);
+  };
+}
+</script>
 
 
 
