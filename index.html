@@ -254,6 +254,30 @@ select,input{
 <div class="panel">
 <h2>Table 1 – Input Details</h2>
 
+
+
+<div style="margin-bottom:8px;font-weight:900">
+  <label style="margin-right:16px">
+    <input type="checkbox" id="hideCusps" checked>
+    Hide Cusps
+  </label>
+
+  <label>
+    <input type="checkbox" id="hideCuspProgs" checked>
+    Hide Cusp Progs
+  </label>
+  
+  <label>
+  <input type="checkbox" id="hidePlanetProgsT1" checked>
+  Hide Planet Progs
+</label>
+
+  
+  
+</div>
+
+
+
 <table id="inputTable">
 <thead>
 <tr>
@@ -320,11 +344,56 @@ function buildSelect(){
 
 
 
+function updateTable1HideOnly(){
+
+  const hideCusps =
+    document.getElementById("hideCusps")?.checked;
+
+  const hideCuspProgs =
+    document.getElementById("hideCuspProgs")?.checked;
+
+  const hidePlanetProgs =
+    document.getElementById("hidePlanetProgsT1")?.checked;
+
+  [...tbody.querySelectorAll("tr[data-entity]")].forEach(tr=>{
+    const e = tr.dataset.entity;
+    tr.style.display = "";
+
+    // Natal cusps
+    if(hideCusps && e.startsWith("Cusp ") && !e.includes("Progs")){
+      tr.style.display = "none";
+    }
+
+    // Cusp progressions
+    if(hideCuspProgs && /^Cusp\s*\d+\s+Progs$/.test(e)){
+      tr.style.display = "none";
+    }
+
+    // Planet progressions ONLY
+    if(
+      hidePlanetProgs &&
+      e.endsWith("Progs") &&
+      !e.startsWith("Lagn") &&
+      !e.startsWith("Chandra") &&
+      !e.startsWith("Cusp")
+    ){
+      tr.style.display = "none";
+    }
+  });
+}
+
+
+
+
+
+
+
+
 
 const orderedEntities = [
   "Lagna",
-  "_gap_",
   "Chandra",
+    "_gap_",
   "Venus",
   "Mangala",
   "Guru",
@@ -336,11 +405,63 @@ const orderedEntities = [
   "Rahu",
   "Ketu",
   "_gap_",
-   "Lagn Progs",
-  "Rasi Progs",
-  "ALP Progs"
+  "_gap_",
 
+  /* ===== CORE PROGRESSIONS ===== */
+  "Lagn Progs",
+  "Chandra Progs",
+  "ALP Progs",
+
+ "_gap_",
+  "Venus Progs",
+  "Mangala Progs",
+  "Guru Progs",
+  
+  "_gap_",
+  
+  "Budha Progs",
+  "Shani Progs",
+  "_gap_",
+  
+   "Surya Progs",
+  "Rahu Progs",
+  "Ketu Progs",
+
+  "_gap_",
+
+	 "Cusp 1",
+	 "Cusp 2",
+	"Cusp 3",
+	"Cusp 4",
+	"Cusp 5",
+	"Cusp 6",
+	"Cusp 7",
+	"Cusp 8",
+	"Cusp 9",
+	"Cusp 10",
+	"Cusp 11",
+	"Cusp 12",
+
+
+  "_gap_",
+
+	"Cusp 1 Progs",
+	"Cusp 2 Progs",
+	"Cusp 3 Progs",
+	"Cusp 4 Progs",
+	"Cusp 5 Progs",
+	"Cusp 6 Progs",
+	"Cusp 7 Progs",
+	"Cusp 8 Progs",
+	"Cusp 9 Progs",
+	"Cusp 10 Progs",
+	"Cusp 11 Progs",
+	"Cusp 12 Progs",
+
+
+ 
 ];
+
 
 // entities WITHOUT gaps (used for calculations)
 const entities = orderedEntities.filter(e => e !== "_gap_");
@@ -520,6 +641,30 @@ function clearAll(){
 
 <div class="panel">
 <h2>Table 2 – Lagna ↔ Lagna & Planet ↔ Planet</h2>
+
+
+
+<div style="margin-bottom:10px;font-weight:900">
+  <label style="margin-right:16px">
+    <input type="checkbox" id="ignorePlanetProgs" checked>
+    Ignore Planet Progs
+  </label>
+
+  <label style="margin-right:16px">
+    <input type="checkbox" id="ignoreCuspProgs" checked>
+    Ignore Cusp Progs
+  </label>
+
+  <label>
+    <input type="checkbox" id="ignoreCusps" checked>
+    Ignore Cusps
+  </label>
+</div>
+
+
+
+
+
 <table id="resultTable">
 <thead>
 <tr>
@@ -680,8 +825,33 @@ orderedEntities.forEach(e=>{
   `);
 });
 
-/* ===================== CORE RECALC ===================== */
+/* ===================== Define entity categories for Table 2 filtering ===================== */
 
+
+
+
+function isPlanetProg(entity){
+  return entity.endsWith("Progs") &&
+         !entity.startsWith("Lagn") &&
+         !entity.startsWith("Chandra");
+}
+
+function isCusp(entity){
+  return entity.startsWith("Cusp ") && !entity.includes("Progs");
+}
+
+function isCuspProg(entity){
+  return /^Cusp\s*\d+\s+Progs$/.test(entity);
+}
+
+
+
+
+
+
+
+
+/* ===================== CORE RECALC ===================== */
 
 
 
@@ -695,19 +865,56 @@ function recalcTable2(){
   let bg_pos=0, bg_avg=0, bg_neg=0;
   let gb_pos=0, gb_avg=0, gb_neg=0;
 
+  const ignorePlanetProgs = document.getElementById("ignorePlanetProgs").checked;
+  const ignoreCuspProgs   = document.getElementById("ignoreCuspProgs").checked;
+  const ignoreCusps       = document.getElementById("ignoreCusps").checked;
+
   entities.forEach(e=>{
-    const inRow = [...tbody.children].find(r=>r.dataset.entity===e);
-    const outRow = [...resultBody.children].find(r=>r.dataset.entity===e);
+
+    const inRow  = [...tbody.children].find(r=>r.dataset?.entity===e);
+    const outRow = [...resultBody.children].find(r =>
+  r.dataset?.entity?.replace(/\s+/g,"") === e.replace(/\s+/g,"")
+);
+
+    if(!inRow || !outRow) return;
+
+
+
+
+
+
+/* ===== RESET VISIBILITY FIRST (CRITICAL) ===== */
+outRow.style.display = "";
+
+/* ===== APPLY IGNORE RULES ===== */
+if (
+  (ignorePlanetProgs && isPlanetProg(e)) ||
+  (ignoreCuspProgs   && isCuspProg(e))   ||
+  (ignoreCusps       && isCusp(e))
+){
+  outRow.style.display = "none";
+  return; // skip calc for this run ONLY
+}
+
+
+
+
+
+
 
     const b = inRow.children[1].querySelector("select").value;
     const g = inRow.children[2].querySelector("select").value;
 
-    if(b==="" || g===""){
-      outRow.querySelectorAll("td").forEach((td,i)=>{
-        if(i>0) td.innerText="";
-      });
-      return;
-    }
+    // 🔥 Do NOT early-return for Cusp Progs
+	if(b==="" || g===""){
+	  if (!isCuspProg(e)) {
+		outRow.querySelectorAll("td").forEach((td,i)=>{
+		  if(i>0) td.innerText="";
+		});
+		return;
+	  }
+	}
+
 
     /* ========= BOY → GIRL ========= */
     const dBG = getDistance(Number(b), Number(g));
@@ -716,13 +923,9 @@ function recalcTable2(){
     const vBG  = verdict(eqBG);
 
     outRow.querySelector(".houseBG").innerText = hBG;
-    outRow.querySelector(".eqBG").innerText = eqBG;
-    outRow.querySelector(".resBG").innerText = vBG.text;
+    outRow.querySelector(".eqBG").innerText    = eqBG;
+    outRow.querySelector(".resBG").innerText   = vBG.text;
     outRow.querySelector(".resBG").style.color = vBG.color;
-
-    if(vBG.text==="Good") bg_pos++;
-    if(vBG.text==="Average") bg_avg++;
-    if(vBG.text==="Bad") bg_neg++;
 
     /* ========= GIRL → BOY ========= */
     const dGB = getDistance(Number(g), Number(b));
@@ -731,16 +934,23 @@ function recalcTable2(){
     const vGB  = verdict(eqGB);
 
     outRow.querySelector(".houseGB").innerText = hGB;
-    outRow.querySelector(".eqGB").innerText = eqGB;
-    outRow.querySelector(".resGB").innerText = vGB.text;
+    outRow.querySelector(".eqGB").innerText    = eqGB;
+    outRow.querySelector(".resGB").innerText   = vGB.text;
     outRow.querySelector(".resGB").style.color = vGB.color;
 
-    if(vGB.text==="Good") gb_pos++;
-    if(vGB.text==="Average") gb_avg++;
-    if(vGB.text==="Bad") gb_neg++;
+    /* ========= COUNT (VISIBLE ROWS ONLY) ========= */
+    if (outRow.style.display !== "none") {
+      if (vBG.text === "Good")     bg_pos++;
+      if (vBG.text === "Average")  bg_avg++;
+      if (vBG.text === "Bad")      bg_neg++;
+
+      if (vGB.text === "Good")     gb_pos++;
+      if (vGB.text === "Average")  gb_avg++;
+      if (vGB.text === "Bad")      gb_neg++;
+    }
   });
 
-  /* ========= UPDATE TOTALS ========= */
+  /* ========= UPDATE TOTALS (ONCE) ========= */
   document.getElementById("t2bg_pos").innerText = `Positive : ${bg_pos}`;
   document.getElementById("t2bg_avg").innerText = `Average : ${bg_avg}`;
   document.getElementById("t2bg_neg").innerText = `Negative : ${bg_neg}`;
@@ -752,9 +962,25 @@ function recalcTable2(){
 
 
 
+["ignorePlanetProgs","ignoreCuspProgs","ignoreCusps"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    updateTable1HideOnly();   // 🔥 UI ONLY
+    recalcTable2();
+  });
+});
 
 
+["hideCusps","hideCuspProgs"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    updateTable1HideOnly();
+  });
+});
 
+["hidePlanetProgsT1"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    updateTable1HideOnly();
+  });
+});
 
 
 
@@ -1122,13 +1348,33 @@ function tatvaVerdict(b,g){
 
 
 
-
 function recalcTable4(){
+
   let pos = 0, avg = 0, neg = 0;
 
+  const ignorePlanetProgs = document.getElementById("ignorePlanetProgs").checked;
+  const ignoreCuspProgs   = document.getElementById("ignoreCuspProgs").checked;
+  const ignoreCusps       = document.getElementById("ignoreCusps").checked;
+
   entities.forEach(e=>{
-    const inRow = [...tbody.children].find(r=>r.dataset.entity===e);
-    const outRow = [...tatvaBody.children].find(r=>r.dataset.entity===e);
+
+    const inRow  = [...tbody.children].find(r=>r.dataset?.entity===e);
+    const outRow = [...tatvaBody.children].find(r=>r.dataset?.entity===e);
+
+    if(!inRow || !outRow) return;
+
+    /* ===== RESET VISIBILITY FIRST ===== */
+    outRow.style.display = "";
+
+    /* ===== APPLY IGNORE RULES (TABLE 4 ONLY) ===== */
+    if(
+      (ignorePlanetProgs && isPlanetProg(e)) ||
+      (ignoreCuspProgs   && isCuspProg(e))   ||
+      (ignoreCusps       && isCusp(e))
+    ){
+      outRow.style.display = "none";
+      return;
+    }
 
     const b = inRow.children[1].querySelector("select").value;
     const g = inRow.children[2].querySelector("select").value;
@@ -1163,7 +1409,6 @@ function recalcTable4(){
   document.getElementById("t4avg").innerText = `Average : ${avg}`;
   document.getElementById("t4neg").innerText = `Negative : ${neg}`;
 }
-
 
 
 
@@ -1245,7 +1490,7 @@ const taraOrder = [
   "Ketu",
   "_gap_",
   "Lagn Progs",
-  "Rasi Progs",
+  "Chandra Progs",
   "ALP Progs"
 ];
 
@@ -1337,7 +1582,8 @@ function recalcTable5(){
 
 
 
-
+updateTable1HideOnly();
+updateTable1HideOnly();
 
 /* ===================== MASTER GLOBAL HOOK ===================== */
 
@@ -1373,6 +1619,33 @@ document.addEventListener("change",e=>{
 <div class="panel">
 <h2>Table 6 – 36 Guna (Ashta-Koota) Matching</h2>
 
+<div style="margin-bottom:8px;font-weight:900">
+  <label style="margin-right:16px">
+    <input type="checkbox" id="hideCuspsT6">
+    Hide Cusps
+  </label>
+
+  <label>
+    <input type="checkbox" id="hideCuspProgsT6" checked>
+    Hide Cusp Progs
+  </label>
+  
+  
+  
+  <label style="margin-left:16px">
+  <input type="checkbox" id="hidePlanetProgsT6" checked>
+  Hide Planet Progs
+</label>
+
+  
+  
+</div>
+
+
+
+
+
+
 <table id="guna36Table">
 <thead>
 <tr>
@@ -1393,6 +1666,13 @@ document.addEventListener("change",e=>{
 </thead>
 
 <tbody>
+
+
+
+<!-- ===== DOUBLE GAP BEFORE PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+
 
 <tr class="guna-lagna" data-entity="Lagna">
   <td><b>⭐ Lagna</b></td>
@@ -1419,6 +1699,16 @@ document.addEventListener("change",e=>{
   <td class="nadi"></td>
   <td class="total"></td>
 </tr>
+
+
+
+
+<!-- ===== DOUBLE GAP BEFORE PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+
+
+
 
 <tr data-entity="Venus">
   <td><b>Venus</b></td>
@@ -1472,6 +1762,12 @@ document.addEventListener("change",e=>{
   <td class="total"></td>
 </tr>
 
+
+<!-- ===== DOUBLE GAP BEFORE PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+
+
 <tr data-entity="Shani">
   <td><b>Shani</b></td>
   <td class="varna"></td>
@@ -1524,7 +1820,188 @@ document.addEventListener("change",e=>{
   <td class="total"></td>
 </tr>
 	
-<tr data-entity="Cusp2">
+	
+	
+	
+	
+	
+	
+	
+	<!-- ===== DOUBLE GAP BEFORE PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+	
+	
+<!-- ===== PROGRESSION GUNA MATCHING ===== -->
+
+<tr data-entity="Lagn Progs">
+  <td><b>Lagn Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Chandra Progs">
+  <td><b>Chandra Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+
+<!-- ===== DOUBLE GAP BEFORE PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+
+
+
+<tr data-entity="Venus Progs">
+  <td><b>Venus Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Mangala Progs">
+  <td><b>Mangala Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Guru Progs">
+  <td><b>Guru Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Budha Progs">
+  <td><b>Budha Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Shani Progs">
+  <td><b>Shani Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Surya Progs">
+  <td><b>Surya Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Rahu Progs">
+  <td><b>Rahu Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+<tr data-entity="Ketu Progs">
+  <td><b>Ketu Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+
+
+
+
+
+
+
+
+
+
+<!-- ===== DOUBLE GAP BEFORE PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+
+
+<tr data-entity="Cusp 1">
+  <td><b>Cusp 1</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+	
+<tr data-entity="Cusp 2">
+
   <td><b>Cusp 2</b></td>
   <td class="varna"></td>
   <td class="vashya"></td>
@@ -1666,6 +2143,73 @@ document.addEventListener("change",e=>{
   <td class="nadi"></td>
   <td class="total"></td>
 </tr>
+
+
+
+
+
+<!-- ===== DOUBLE GAP BEFORE CUSP PROGRESSIONS ===== -->
+<tr class="gap-row"><td colspan="10"></td></tr>
+<tr class="gap-row"><td colspan="10"></td></tr>
+
+
+<tr data-entity="Cusp1 Progs">
+  <td><b>Cusp 1 Progs</b></td>
+  <td class="varna"></td>
+  <td class="vashya"></td>
+  <td class="tara"></td>
+  <td class="yoni"></td>
+  <td class="grahaMaitri"></td>
+  <td class="gana"></td>
+  <td class="bhakoot"></td>
+  <td class="nadi"></td>
+  <td class="total"></td>
+</tr>
+
+
+
+
+
+
+
+<tr data-entity="Cusp2 Progs">
+  <td><b>Cusp 2 Progs</b></td>
+  <td class="varna"></td><td class="vashya"></td><td class="tara"></td>
+  <td class="yoni"></td><td class="grahaMaitri"></td>
+  <td class="gana"></td><td class="bhakoot"></td>
+  <td class="nadi"></td><td class="total"></td>
+</tr>
+
+<tr data-entity="Cusp3 Progs"><td><b>Cusp 3 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp4 Progs"><td><b>Cusp 4 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp5 Progs"><td><b>Cusp 5 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp6 Progs"><td><b>Cusp 6 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp7 Progs"><td><b>Cusp 7 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp8 Progs"><td><b>Cusp 8 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp9 Progs"><td><b>Cusp 9 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp10 Progs"><td><b>Cusp 10 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp11 Progs"><td><b>Cusp 11 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+<tr data-entity="Cusp12 Progs"><td><b>Cusp 12 Progs</b></td><td class="varna"></td><td class="vashya"></td><td class="tara"></td><td class="yoni"></td><td class="grahaMaitri"></td><td class="gana"></td><td class="bhakoot"></td><td class="nadi"></td><td class="total"></td></tr>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2182,23 +2726,41 @@ else {
 
 
 
-  /* ================= BHAKOOT (7) ================= */
-  // STRICT ASHTA-KOOTA
-  // Rāśi distance FEMALE → MALE
 
-  let bhakoot = 0;
 
-  const rasiDist = (br - gr + 12) % 12;
 
-  // Auspicious
-  if ([0, 2, 4, 6, 8, 10].includes(rasiDist)) {
-    bhakoot = 7;
+/* ================= BHAKOOT (7) – RELAXED (SAFE) ================= */
+
+// Default bhakoot
+let bhakoot = 0;
+
+// Rasi distance (Bride → Groom)
+const rasiDist = (br - gr + 12) % 12;
+
+// Auspicious distances → always good
+if ([0, 2, 4, 6, 8, 10].includes(rasiDist)) {
+  bhakoot = 7;
+}
+else {
+  /*
+    Dosha distances: 2-12, 5-9, 6-8
+    Relax rule:
+    If Graha Maitri is FRIENDLY (4 or 5),
+    then IGNORE Bhakoot dosha
+  */
+
+  if (grahaMaitri >= 4) {
+    bhakoot = 7;   // Dosha cancelled
+  } else {
+    bhakoot = 0;   // Dosha applies
   }
+}
 
-  // Inauspicious: 2-12, 5-9, 6-8
-  if ([1, 4, 5, 7, 8].includes(rasiDist)) {
-    bhakoot = 0;
-  }
+
+
+
+
+
 
 
 
@@ -2285,10 +2847,15 @@ function recalcTable6(){
 	   let boyPada, girlPada;
 
 	if(ent.startsWith("Cusp")){
-	  const n = Number(ent.replace("Cusp",""));
-	  boyPada  = CUSP_PADAS.boy[n];
-	  girlPada = CUSP_PADAS.girl[n];
-	}else{
+	  const n = Number(ent.match(/\d+/)[0]);
+	  const isProg = ent.includes("Progs");
+
+	  const key = isProg ? n + "P" : n;
+
+	  boyPada  = CUSP_PADAS.boy[key];
+	  girlPada = CUSP_PADAS.girl[key];
+	}
+else{
 	  const inRow=tbody.querySelector(`tr[data-entity="${ent}"]`);
 	  if(!inRow) return;
 	  boyPada  = inRow.children[1].querySelector("select").value;
@@ -2343,6 +2910,57 @@ tr.querySelector(".total").innerText = `${r.total} / 36`;
 
 
 <script>
+
+
+
+/* ===================== TABLE 6 HIDE / SHOW ENGINE ===================== */
+
+function updateTable6Visibility(){
+
+  const hideCusps =
+    document.getElementById("hideCuspsT6")?.checked;
+
+  const hideCuspProgs =
+    document.getElementById("hideCuspProgsT6")?.checked;
+
+  const hidePlanetProgs =
+    document.getElementById("hidePlanetProgsT6")?.checked;
+
+  document
+    .querySelectorAll("#guna36Table tbody tr[data-entity]")
+    .forEach(tr=>{
+
+      const e = tr.dataset.entity;
+      tr.style.display = "";
+
+      // Natal cusps
+      if(hideCusps && /^Cusp\s*\d+$/.test(e)){
+        tr.style.display = "none";
+      }
+
+      // Cusp progressions
+      if(hideCuspProgs && /^Cusp\s*\d+\s+Progs$/.test(e)){
+        tr.style.display = "none";
+      }
+
+      // Planet progressions ONLY
+      if(
+        hidePlanetProgs &&
+        e.endsWith("Progs") &&
+        !e.startsWith("Lagn") &&
+        !e.startsWith("Chandra") &&
+        !e.startsWith("Cusp")
+      ){
+        tr.style.display = "none";
+      }
+    });
+}
+
+
+
+
+
+
 /* ===================== FINAL GLOBAL HOOK (TABLE 6 SAFE) ===================== */
 
 document.addEventListener("change", e=>{
@@ -2351,6 +2969,30 @@ document.addEventListener("change", e=>{
     recalcTable6();
   }
 });
+
+
+
+
+
+
+
+["hideCuspsT6","hideCuspProgsT6"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    updateTable6Visibility();
+  });
+});
+
+
+["hidePlanetProgsT6"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    updateTable6Visibility();
+  });
+});
+
+
+
+// Apply once on load
+updateTable6Visibility();
 
 
 
@@ -2514,22 +3156,82 @@ function calcVimshottariProgress(natalDeg, dobUtc){
 /* APPLY JSON TO COLUMN */
 function applySwissJson(json, columnIndex){
   IS_SWISS_LOADING = true;
+  
+  
+  const dobUtc = json.meta?.datetime_utc;
+  
   const sys = getSystem();
   const ay = json.ayanamshas?.Lahiri || json.ayanamshas?.["KP New"];
   if(!ay) return alert("Unsupported JSON: No Lahiri/KP data");
 
   const planetMap = ay.planets;
   
-  // ===== HOUSE CUSPS (Swiss Ephemeris) =====
+  
+  
+  
+  
+  
+
+// ===== HOUSE CUSPS (Swiss Ephemeris) =====
 const cusps = ay.houses?.cusps || ay.cusps;
 if(cusps){
-  for(let i=2;i<=12;i++){
-    const deg = cusps[i];
-    if(typeof deg === "number"){
-      CUSP_PADAS[columnIndex === 1 ? "boy" : "girl"][i] = degreeToPada(deg);
+  for(let i=1;i<=12;i++){
+    const deg = (i === 1)
+      ? ay.lagna              // 🔥 Cusp1 = Lagna
+      : cusps[i];
+
+    if(typeof deg !== "number") continue;
+
+    const side = columnIndex === 1 ? "boy" : "girl";
+
+    // 1️⃣ Natal cusp
+    CUSP_PADAS[side][i] = degreeToPada(deg);
+
+    // 👉 expose natal cusp to Table 1
+    const natalRow = [...tbody.children]
+  .find(r => r.dataset?.entity === `Cusp ${i}`);
+
+
+    if(natalRow){
+      natalRow.children[columnIndex]
+        .querySelector("select").value = CUSP_PADAS[side][i];
+    }
+
+    // 2️⃣ Progressed cusp (Vimshottari)
+    if(dobUtc && i >= 2){
+      const progDeg = calcVimshottariProgress(deg, dobUtc);
+      CUSP_PADAS[side][i + "P"] = degreeToPada(progDeg);
     }
   }
 }
+
+
+
+
+
+
+
+
+// ===== EXPOSE CUSP PROGS TO TABLE 1 (DEBUG VIEW) =====
+if(dobUtc){
+  for(let i=2;i<=12;i++){
+    const key = i + "P";
+    const pada = CUSP_PADAS[columnIndex === 1 ? "boy" : "girl"][key];
+    if(pada == null) continue;
+
+    const row = [...tbody.children]
+  .find(r => r.dataset?.entity === `Cusp ${i} Progs`);
+
+
+    if(row){
+      row.children[columnIndex]
+         .querySelector("select").value = pada;
+    }
+  }
+}
+
+
+
 
   
   
@@ -2562,20 +3264,94 @@ const natalMoonDeg  = planetMap.Chandra;
 
   /* ===== PROGRESSIONS AUTO FILL ===== */
 
-  const dobUtc = json.meta?.datetime_utc;
+  
   if(dobUtc){
 
     // 1️⃣ LAGNA PROGS (Vimshottari Lagna – Nakshatra based)
 	const lagnaProgDeg = calcVimshottariProgress(natalLagnaDeg, dobUtc);
 	setVal("Lagn Progs", lagnaProgDeg);
 
+
+	// ===== CUSP 1 PROGS (SAME AS LAGNA PROGS) =====
+	const side = columnIndex === 1 ? "boy" : "girl";
+	CUSP_PADAS[side]["1P"] = degreeToPada(lagnaProgDeg);
+
+	const cusp1ProgRow = [...tbody.children]
+	  .find(r => r.dataset?.entity === "Cusp 1 Progs");
+
+	if(cusp1ProgRow){
+	  cusp1ProgRow.children[columnIndex]
+		.querySelector("select").value = CUSP_PADAS[side]["1P"];
+	}
+
+
+
 	// 2️⃣ RASI PROGS (Vimshottari Moon – Nakshatra based)
 	const moonProgDeg = calcVimshottariProgress(natalMoonDeg, dobUtc);
-	setVal("Rasi Progs", moonProgDeg);
+	setVal("Chandra Progs", moonProgDeg);
 
 	// 3️⃣ ALP PROGS (Absolute Lagna Progress)
 	const alpDeg = calcALPDegree(natalLagnaDeg, dobUtc);
 	setVal("ALP Progs", alpDeg);
+
+	// 4️⃣ PLANET PROGS (Vimshottari – same engine)
+
+		// Venus
+		setVal(
+		  "Venus Progs",
+		  calcVimshottariProgress(planetMap.Venus, dobUtc)
+		);
+
+		// Mangala
+		setVal(
+		  "Mangala Progs",
+		  calcVimshottariProgress(planetMap.Mangala, dobUtc)
+		);
+
+		// Guru (Jupiter)
+		setVal(
+		  "Guru Progs",
+		  calcVimshottariProgress(planetMap.Jupiter, dobUtc)
+		);
+
+		// Budha (Mercury)
+		setVal(
+		  "Budha Progs",
+		  calcVimshottariProgress(planetMap.Budha, dobUtc)
+		);
+
+		// Shani (Saturn)
+		setVal(
+		  "Shani Progs",
+		  calcVimshottariProgress(planetMap.Saturn, dobUtc)
+		);
+
+		// Surya
+		setVal(
+		  "Surya Progs",
+		  calcVimshottariProgress(planetMap.Surya, dobUtc)
+		);
+
+		// Rahu
+		setVal(
+		  "Rahu Progs",
+		  calcVimshottariProgress(
+			planetMap.Rahu_true ?? planetMap.Rahu,
+			dobUtc
+		  )
+		);
+
+		// Ketu
+		setVal(
+		  "Ketu Progs",
+		  calcVimshottariProgress(
+			planetMap.Ketu_true ?? planetMap.Ketu,
+			dobUtc
+		  )
+		);
+
+
+
 
 
   }
