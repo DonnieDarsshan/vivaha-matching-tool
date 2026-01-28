@@ -1536,8 +1536,15 @@ function getNakCount(fromNak, toNak){
   return (toNak - fromNak + 27) % 27 + 1;
 }
 
-/* ===== RECALC TABLE 5 ===== */
 
+
+
+
+
+
+
+
+/* ===== RECALC TABLE 5 ===== */
 function recalcTable5(){
 
   taraOrder.forEach(e=>{
@@ -1545,30 +1552,40 @@ function recalcTable5(){
 
     const inRow  = [...tbody.children].find(r=>r.dataset?.entity===e);
     const outRow = [...taraBody.children].find(r=>r.dataset?.entity===e);
-
     if(!inRow || !outRow) return;
 
     const b = inRow.children[1].querySelector("select").value;
     const g = inRow.children[2].querySelector("select").value;
 
-    if(b==="" || g===""){
-      outRow.querySelector(".bg").innerText = "";
-      outRow.querySelector(".gb").innerText = "";
+    // reset
+    outRow.querySelector(".bg").innerText = "";
+    outRow.querySelector(".gb").innerText = "";
+
+    if(b==="" && g==="") return;
+
+    const bNak = b !== "" ? getNakIndex(b) : null;
+    const gNak = g !== "" ? getNakIndex(g) : null;
+
+    /* ===== ONLY BOY FILLED ===== */
+    if(bNak !== null && gNak === null){
+      outRow.querySelector(".bg").innerText =
+        `Janma (1)`;
       return;
     }
 
-    const bNak = getNakIndex(b);
-    const gNak = getNakIndex(g);
+    /* ===== ONLY GIRL FILLED ===== */
+    if(gNak !== null && bNak === null){
+      outRow.querySelector(".gb").innerText =
+        `Janma (1)`;
+      return;
+    }
 
-    /* === Boy → Girl === */
-    const bgTara  = getTaraName(bNak, gNak);
-    const bgCount = getNakCount(bNak, gNak);
-    outRow.querySelector(".bg").innerText = `${bgTara} (${bgCount})`;
+    /* ===== BOTH FILLED ===== */
+    outRow.querySelector(".bg").innerText =
+      `${getTaraName(bNak,gNak)} (${getNakCount(bNak,gNak)})`;
 
-    /* === Girl → Boy === */
-    const gbTara  = getTaraName(gNak, bNak);
-    const gbCount = getNakCount(gNak, bNak);
-    outRow.querySelector(".gb").innerText = `${gbTara} (${gbCount})`;
+    outRow.querySelector(".gb").innerText =
+      `${getTaraName(gNak,bNak)} (${getNakCount(gNak,bNak)})`;
   });
 }
 
@@ -1576,6 +1593,16 @@ function recalcTable5(){
 
 
 
+/* ===== TABLE 5 MANUAL INPUT HOOK (CRITICAL FIX) ===== */
+tbody.addEventListener("change", e=>{
+  if(IS_SWISS_LOADING) return;
+  if(e.target.tagName !== "SELECT") return;
+  recalcTable5();
+});
+
+
+
+
 
 
 
@@ -1584,6 +1611,10 @@ function recalcTable5(){
 
 updateTable1HideOnly();
 updateTable1HideOnly();
+
+
+let IS_SWISS_LOADING = false;
+
 
 /* ===================== MASTER GLOBAL HOOK ===================== */
 
@@ -3012,7 +3043,6 @@ updateTable6Visibility();
 <script>
 /* ===================== UNIVERSAL SWISS JSON SUPPORT ===================== */
 
-let IS_SWISS_LOADING = false;
 
 
 // Store cusp padas (2–12)
