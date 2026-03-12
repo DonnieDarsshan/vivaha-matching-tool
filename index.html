@@ -297,6 +297,53 @@ select,input{
 
 
 
+/* ================= VIMSHOTTARI DASHA STYLES ================= */
+.vim-wrapper { max-width: 100%; margin-bottom: 20px; border: 2px solid #c9a227; background:#111; padding:10px; }
+.vim-heading { text-align:center; font-size:22px; font-weight:bold; color:#facc15; cursor:pointer; padding:10px; background:#0a0a0a; margin-bottom:10px; border:1px solid #c9a227; }
+.vim-find-bar { background:#000; border:1px solid #c9a227; padding:8px 12px; display:flex; justify-content:center; align-items:center; gap:12px; margin-bottom:15px; flex-wrap:wrap;}
+.vim-find-bar input { background:#111; color:#fff; border:1px solid #c9a227; padding:4px 6px; }
+.vim-find-bar button { padding:4px 12px; background:linear-gradient(145deg,#facc15,#c9a227,#facc15); border:1px solid #fde68a; color:#000; font-weight:bold; cursor:pointer; border-radius:4px;}
+
+.vim-row { display:flex; gap:20px; align-items:flex-start; justify-content:space-between; width:100%; margin-bottom: 30px;}
+.vim-col { flex:1 1 0; min-width:0; border:1px solid #c9a227; padding:8px; background:#000; font-family:Arial,sans-serif; font-size: 13px; overflow:hidden; }
+.vim-title { text-align:center; font-size:16px; color:#facc15; margin-bottom:10px; font-weight:bold; border-bottom: 1px solid #333; padding-bottom:5px;}
+
+
+
+
+.vim-maha { background:#3b1f0f; border-left:6px solid #8b4513 !important; }
+.vim-bhukti { background: linear-gradient(135deg,#1b0033,#2d0066); border-left: 6px solid #9d4edd !important; }
+.vim-antara { background: linear-gradient(135deg,#002b24,#004d40); border-left: 6px solid #00f5d4 !important; }
+
+.vim-maha.active { background: radial-gradient(circle at center, #b30000 0%, #a00000 50%, #600000 100%) !important; border:1px solid #ff4d4d !important; border-left:6px solid #ff4d4d !important; }
+.vim-bhukti.active { background:#2a004d !important; border:1px solid #c084fc !important; border-left:6px solid #c084fc !important; }
+.vim-antara.active { background:#003b1f !important; border:1px solid #10b981 !important; border-left:6px solid #10b981 !important; }
+
+
+
+
+
+
+
+.vimSym { display: flex; justify-content: center; align-items: center; font-size: 14px; }
+
+.vim-maha div,
+.vim-bhukti div,
+.vim-antara div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+
+
+
+
+
+
 
 </style>
 
@@ -309,6 +356,15 @@ select,input{
 <body>
 
 <h1>Groom & Bride Horoscope Matching</h1>
+
+
+
+
+
+
+
+
+
 
 
 
@@ -366,6 +422,60 @@ select,input{
 <input type="file" id="fileInput" accept=".json" style="display:none"/>
 <input type="file" id="maleSwissInput" accept=".json" style="display:none"/>
 <input type="file" id="femaleSwissInput" accept=".json" style="display:none"/>
+
+
+
+
+
+
+
+
+
+
+<div class="vim-wrapper panel">
+    <div class="vim-heading" onclick="toggleVim()">Vimshottari Dasha Comparison ▼</div>
+    
+    <div id="vimControlContainer" style="display:none;">
+        <div class="vim-find-bar">
+            <button onclick="setTodayVimDate()">Current Date</button>
+            <span style="color:#facc15;font-weight:bold;">Find Date</span>
+            <input type="date" id="vimFindDate">
+            <button onclick="findVimDate()">Find</button>
+            <button onclick="collapseVim()">Collapse</button>
+            <label style="color:#facc15; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:5px;">
+                <input type="checkbox" id="vimDateToggle" onchange="rebuildAllVim()"> Short Date
+            </label>
+            <select id="expandLevel" style="background:#111;color:#fff;border:1px solid #c9a227;padding:4px 6px;">
+                <option value="2" selected>Bukthi</option>
+                <option value="3">Antara</option>
+            </select>
+        </div>
+
+        <h3 style="text-align:center; color:#facc15; margin-top:0;">Table 1 - Chandra Dasha</h3>
+        <div class="vim-row">
+            <div class="vim-col">
+                <div class="vim-title">Male - Vimshottari Dasha - Chandra</div>
+                <div id="vimBoyChandra" style="text-align:center; padding:10px;">Load Male Chart...</div>
+            </div>
+            <div class="vim-col">
+                <div class="vim-title">Female - Vimshottari Dasha - Chandra</div>
+                <div id="vimGirlChandra" style="text-align:center; padding:10px;">Load Female Chart...</div>
+            </div>
+        </div>
+
+        <h3 style="text-align:center; color:#facc15;">Table 2 - Lagna Dasha</h3>
+        <div class="vim-row">
+            <div class="vim-col">
+                <div class="vim-title">Male - Vimshottari Dasha - Lagna</div>
+                <div id="vimBoyLagna" style="text-align:center; padding:10px;">Load Male Chart...</div>
+            </div>
+            <div class="vim-col">
+                <div class="vim-title">Female - Vimshottari Dasha - Lagna</div>
+                <div id="vimGirlLagna" style="text-align:center; padding:10px;">Load Female Chart...</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -3424,9 +3534,21 @@ function applySwissJson(json, columnIndex){
 
 if(columnIndex === 1){
   maleChartData = json;
+  const dob = json.meta?.datetime_utc;
+  const aya = json.ayanamshas?.Lahiri || json.ayanamshas?.["KP New"];
+  if(aya && dob){
+     buildFullDasha("vimBoyChandra", aya.planets.Chandra, dob);
+     buildFullDasha("vimBoyLagna", aya.lagna, dob);
+  }
 }
 if(columnIndex === 2){
   femaleChartData = json;
+  const dob = json.meta?.datetime_utc;
+  const aya = json.ayanamshas?.Lahiri || json.ayanamshas?.["KP New"];
+  if(aya && dob){
+     buildFullDasha("vimGirlChandra", aya.planets.Chandra, dob);
+     buildFullDasha("vimGirlLagna", aya.lagna, dob);
+  }
 }
 
 renderKundali();
@@ -4282,20 +4404,361 @@ if(!mf.checked && !fm.checked){
 mf.checked=true;
 }
 
+// ⭐ Set today's date automatically in the Dasha search box
+setTodayVimDate();
+
 });
 
 </script>
 
 
+<script>
+/* ===================== VIMSHOTTARI COMPARISON ENGINE ===================== */
+const VIM_ORDER_SYS = ["Ketu", "Venus", "Surya", "Chandra", "Mangala", "Rahu", "Jupiter", "Saturn", "Budha"];
+const VIM_YEARS_SYS = { Ketu:7, Venus:20, Surya:6, Chandra:10, Mangala:7, Rahu:18, Jupiter:16, Saturn:19, Budha:17 };
 
+let currentOpenMahaBox = {};
+let currentOpenBhuktiBox = {};
+
+function toggleVim(){
+    const box = document.getElementById("vimControlContainer");
+    box.style.display = (box.style.display==="none") ? "block" : "none";
+}
+
+function setTodayVimDate(){
+    const input = document.getElementById("vimFindDate");
+    if(!input) return;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth()+1).padStart(2,"0");
+    const d = String(now.getDate()).padStart(2,"0");
+    input.value = `${y}-${m}-${d}`;
+}
+
+function collapseVim(){
+    ["vimBoyChandra","vimGirlChandra","vimBoyLagna","vimGirlLagna"].forEach(id => {
+        const container = document.getElementById(id);
+        if(!container) return;
+        container.querySelectorAll(".vim-maha,.vim-bhukti,.vim-antara").forEach(el=>el.classList.remove("active"));
+        [...container.children].forEach(el=>{ if(!el.classList.contains("vim-maha")) el.style.display="none"; });
+    });
+}
+
+function findVimDate(){
+    const val = document.getElementById("vimFindDate")?.value;
+    if(!val) return;
+    const target = new Date(val+"T00:00:00");
+    ["vimBoyChandra","vimGirlChandra","vimBoyLagna","vimGirlLagna"].forEach(id => {
+        expandVimForDate(id, target);
+    });
+    highlightTodayVim(); // ⭐ Trigger symbols after searching
+}
+
+function expandVimForDate(containerId, targetDate){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    const levelLimit = parseInt(document.getElementById("expandLevel")?.value || "2");
+
+    container.querySelectorAll(".vim-maha,.vim-bhukti,.vim-antara").forEach(el=>el.classList.remove("active"));
+    [...container.children].forEach(el=>{ if(!el.classList.contains("vim-maha")) el.style.display="none"; });
+
+    const matches = [...container.querySelectorAll("[data-s]")].filter(row=>{
+        const s = new Date(row.dataset.s);
+        const e = new Date(row.dataset.e);
+        return targetDate >= s && targetDate < e;
+    }).sort((a,b)=>parseInt(a.dataset.l) - parseInt(b.dataset.l));
+
+    matches.forEach(row=>{
+        const level = parseInt(row.dataset.l);
+        row.classList.add("active");
+        if(level === 1){
+            const bhuktiBox = row.nextElementSibling;
+            if(bhuktiBox){ bhuktiBox.style.display="block"; currentOpenMahaBox[containerId]=bhuktiBox; }
+        }
+        if(level === 2){
+            const antaraBox = row.nextElementSibling;
+            if(antaraBox){
+                if(levelLimit === 3){
+                    antaraBox.style.display="block"; currentOpenBhuktiBox[containerId]=antaraBox;
+                } else {
+                    antaraBox.style.display="none"; currentOpenBhuktiBox[containerId]=null;
+                }
+            }
+        }
+    });
+}
+
+function formatDateSmart(d){
+    if(!d) return "-";
+    const shortMode = document.getElementById("vimDateToggle")?.checked;
+    const y = d.getFullYear();
+    const mNum = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    
+    if(shortMode){
+        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        return `${y} - ${months[d.getMonth()]}`;
+    }
+    return `${y} - ${mNum} - ${day}`;
+}
+
+
+
+
+
+
+
+function buildFullDasha(containerId, baseDeg, dobUtcStr){
+    const box = document.getElementById(containerId);
+    if(!box) return;
+    box.innerHTML = "";
+
+    if(!dobUtcStr || baseDeg == null) {
+        box.innerHTML = "Awaiting chart data...";
+        return;
+    }
+
+    const birthDate = new Date(dobUtcStr);
+    const MS_YEAR = 365.2422 * 24 * 60 * 60 * 1000;
+    const nakSize = 360 / 27;
+
+    let nakIndex = Math.floor(baseDeg / nakSize);
+    let startLord = VIM_ORDER_SYS[nakIndex % 9];
+    let frac = (baseDeg % nakSize) / nakSize;
+    let elapsedYears = VIM_YEARS_SYS[startLord] * frac;
+
+    let mahaStart = new Date(birthDate.getTime() - elapsedYears * MS_YEAR);
+    let startIndex = VIM_ORDER_SYS.indexOf(startLord);
+	
+	
+	
+    let mahaCounter = 0;
+    let order = [...VIM_ORDER_SYS.slice(startIndex), ...VIM_ORDER_SYS.slice(0, startIndex)];
+
+    // Adjusted grid ratios to prevent date cropping and fix planet gaps
+    const GRID_STYLE = "display:grid; grid-template-columns: 24px 1.4fr 1.0fr 0.5fr 0.6fr 1.0fr 0.5fr; align-items:center; column-gap:0.3em; width:100%; box-sizing:border-box; text-align:left;";
+
+    order.forEach(mahaLord => {
+        let mahaYears = VIM_YEARS_SYS[mahaLord];
+        let mahaEnd = new Date(mahaStart.getTime() + mahaYears * MS_YEAR);
+
+        let ageStart = Math.floor((mahaStart - birthDate)/MS_YEAR);
+        let ageEnd   = Math.floor((mahaEnd - birthDate)/MS_YEAR);
+        if(ageStart < 0) ageStart = 0;
+        if(ageEnd < 0) ageEnd = 0;
+
+        let mahaRow = document.createElement("div");
+        mahaRow.dataset.s = mahaStart;
+        mahaRow.dataset.e = mahaEnd;
+        mahaRow.dataset.l = 1;
+        mahaRow.className = "vim-maha";
+        mahaRow.style = GRID_STYLE + "cursor:pointer; padding:6px 8px; margin:6px 0 3px 0; border:1px solid #444; border-radius:4px;";
+
+        // Enforce the requirement: First date must be Birth Date
+        let displayStart = (mahaCounter === 0) ? birthDate : mahaStart;
+
+        mahaRow.innerHTML = `
+            <div class="vimSym"></div>
+            <div style="font-weight:bold;">Maha – ${mahaLord}</div>
+            <div>${formatDateSmart(displayStart)}</div>
+            <div>(${ageStart} y)</div>
+            <div style="text-align:center;">→</div>
+            <div>${formatDateSmart(mahaEnd)}</div>
+            <div>(${ageEnd} y)</div>
+        `;
+
+        let bhuktiBox = document.createElement("div");
+        bhuktiBox.style.display = "none";
+        bhuktiBox.style.marginLeft = "0";
+        bhuktiBox.style.marginTop = "6px";
+
+        let startBhuktiIndex = VIM_ORDER_SYS.indexOf(mahaLord);
+        let bhuktiOrder = [...VIM_ORDER_SYS.slice(startBhuktiIndex), ...VIM_ORDER_SYS.slice(0, startBhuktiIndex)];
+        let bhuktiStart = new Date(mahaStart);
+
+        bhuktiOrder.forEach(bhuktiLord => {
+            let bhuktiYears = mahaYears * (VIM_YEARS_SYS[bhuktiLord] / 120);
+            let bhuktiEnd = new Date(bhuktiStart.getTime() + bhuktiYears * MS_YEAR);
+
+            let bhuktiRow = document.createElement("div");
+            bhuktiRow.dataset.s = bhuktiStart;
+            bhuktiRow.dataset.e = bhuktiEnd;
+            bhuktiRow.dataset.l = 2;
+            bhuktiRow.className = "vim-bhukti";
+            bhuktiRow.style = GRID_STYLE + "cursor:pointer; padding:4px 8px; margin:2px 0; border:1px solid #333; border-radius:3px;";
+
+            // First date birth date fix
+            // Calculate Bhukti ages
+            let bAgeStart = Math.floor((bhuktiStart - birthDate)/MS_YEAR);
+            let bAgeEnd   = Math.floor((bhuktiEnd - birthDate)/MS_YEAR);
+            if(bAgeStart < 0) bAgeStart = 0;
+            if(bAgeEnd < 0) bAgeEnd = 0;
+
+            // First date birth date fix
+            let displayBhuktiStart = (mahaCounter === 0 && bhuktiStart < birthDate) ? birthDate : bhuktiStart;
+
+            bhuktiRow.innerHTML = `
+                <div class="vimSym"></div>
+                <div style="font-weight:bold;">Bhukti – ${bhuktiLord}</div>
+                <div>${formatDateSmart(displayBhuktiStart)}</div>
+                <div>(${bAgeStart} y)</div>
+                <div style="text-align:center;">→</div>
+                <div>${formatDateSmart(bhuktiEnd)}</div>
+                <div>(${bAgeEnd} y)</div>
+            `;
+
+            let antaraBox = document.createElement("div");
+            antaraBox.style.display = "none";
+            antaraBox.style.marginLeft = "0";
+
+            let startAntaraIndex = VIM_ORDER_SYS.indexOf(bhuktiLord);
+            let antaraOrder = [...VIM_ORDER_SYS.slice(startAntaraIndex), ...VIM_ORDER_SYS.slice(0, startAntaraIndex)];
+            let antaraStart = new Date(bhuktiStart);
+
+            antaraOrder.forEach(antaraLord => {
+                let antaraYears = bhuktiYears * (VIM_YEARS_SYS[antaraLord] / 120);
+                let antaraEnd = new Date(antaraStart.getTime() + antaraYears * MS_YEAR);
+
+                let line = document.createElement("div");
+                line.dataset.s = antaraStart;
+                line.dataset.e = antaraEnd;
+                line.dataset.l = 3;
+                line.className = "vim-antara";
+                line.style = GRID_STYLE + "cursor:pointer; padding:3px 8px; margin:1px 0; border:1px solid #1e3a8a; border-radius:2px;";
+
+                // First date birth date fix
+                let displayAntaraStart = (mahaCounter === 0 && antaraStart < birthDate) ? birthDate : antaraStart;
+
+                line.innerHTML = `
+                    <div class="vimSym"></div>
+                    <div style="font-weight:bold;">Antara – ${antaraLord}</div>
+                    <div>${formatDateSmart(displayAntaraStart)}</div>
+                    <div></div>
+                    <div style="text-align:center;">→</div>
+                    <div>${formatDateSmart(antaraEnd)}</div>
+                    <div></div>
+                `;
+                antaraBox.appendChild(line);
+                antaraStart = antaraEnd;
+            });
+
+            bhuktiRow.onclick = (e) => {
+                e.stopPropagation();
+                const levelLimit = parseInt(document.getElementById("expandLevel")?.value || "2");
+                box.querySelectorAll(".vim-bhukti").forEach(r => r.classList.remove("active"));
+                bhuktiRow.classList.add("active");
+
+                if(levelLimit === 2){
+                    if(currentOpenBhuktiBox[containerId]) currentOpenBhuktiBox[containerId].style.display = "none";
+                    currentOpenBhuktiBox[containerId] = null;
+                    return;
+                }
+
+                const isOpen = antaraBox.style.display === "block";
+                if(currentOpenBhuktiBox[containerId] && currentOpenBhuktiBox[containerId] !== antaraBox){
+                    currentOpenBhuktiBox[containerId].style.display = "none";
+                }
+                antaraBox.style.display = isOpen ? "none" : "block";
+                currentOpenBhuktiBox[containerId] = antaraBox.style.display === "block" ? antaraBox : null;
+            };
+
+            bhuktiBox.appendChild(bhuktiRow);
+            bhuktiBox.appendChild(antaraBox);
+            bhuktiStart = bhuktiEnd;
+        });
+
+        mahaRow.onclick = () => {
+            const isOpen = bhuktiBox.style.display === "block";
+            box.querySelectorAll(".vim-maha").forEach(r => r.classList.remove("active"));
+            if(currentOpenMahaBox[containerId] && currentOpenMahaBox[containerId] !== bhuktiBox){
+                currentOpenMahaBox[containerId].style.display = "none";
+            }
+            bhuktiBox.style.display = isOpen ? "none" : "block";
+            if(!isOpen) mahaRow.classList.add("active");
+            currentOpenMahaBox[containerId] = bhuktiBox.style.display === "block" ? bhuktiBox : null;
+        };
+
+        box.appendChild(mahaRow);
+        box.appendChild(bhuktiBox);
+        mahaStart = mahaEnd;
+        mahaCounter++;
+    });
+    
+    // ⭐ Trigger symbols immediately after building the table
+    setTimeout(highlightTodayVim, 50);
+}
+
+
+
+
+
+
+const VIM_SYMBOLS = { 1:"⭐", 2:"▶", 3:"◆" };
+
+function highlightTodayVim(){
+    const today = new Date();
+    document.querySelectorAll(".vimSym").forEach(s => s.textContent = "");
+    
+    ["vimBoyChandra","vimGirlChandra","vimBoyLagna","vimGirlLagna"].forEach(id => {
+        const container = document.getElementById(id);
+        if(!container) return;
+        
+        let nodes = [...container.querySelectorAll("div")]
+            .filter(n => n.dataset && n.dataset.s)
+            .filter(n => today >= new Date(n.dataset.s) && today < new Date(n.dataset.e))
+            .sort((a,b) => a.dataset.l - b.dataset.l);
+            
+        nodes.forEach(n => {
+            let sym = n.querySelector(".vimSym");
+            if(sym) sym.textContent = VIM_SYMBOLS[n.dataset.l] || "";
+        });
+    });
+}
+
+// Hook to trigger rebuild when toggling dates
+function rebuildAllVim() {
+    if(maleChartData && maleChartData.meta?.datetime_utc && maleChartData.ayanamshas) {
+        const aya = maleChartData.ayanamshas.Lahiri || maleChartData.ayanamshas["KP New"];
+        buildFullDasha("vimBoyChandra", aya.planets.Chandra, maleChartData.meta.datetime_utc);
+        buildFullDasha("vimBoyLagna", aya.lagna, maleChartData.meta.datetime_utc);
+    }
+    if(femaleChartData && femaleChartData.meta?.datetime_utc && femaleChartData.ayanamshas) {
+        const aya = femaleChartData.ayanamshas.Lahiri || femaleChartData.ayanamshas["KP New"];
+        buildFullDasha("vimGirlChandra", aya.planets.Chandra, femaleChartData.meta.datetime_utc);
+        buildFullDasha("vimGirlLagna", aya.lagna, femaleChartData.meta.datetime_utc);
+    }
+    highlightTodayVim(); // ⭐ Trigger symbols after toggling date format
+}
+
+
+
+
+</script>
 
 
 
 <script>
+
 renderKundali();
 renderNavamsha();
 recalcKPCounters();
+setTodayVimDate(); // ⭐ Automatically sets today's date in the search box
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
