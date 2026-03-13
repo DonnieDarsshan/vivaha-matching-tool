@@ -32,101 +32,84 @@ h1{
 
 /* ================= KUNDALI (Transit Mixer Theme) ================= */
 
+
+
 .kundali{
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    grid-template-rows:repeat(4,auto);
-
+    grid-template-rows:repeat(4,minmax(120px, auto));
     width:650px;
-
     gap:2px;
-
-    background:#ffcc00;
-    border:2px solid #ffcc00;
+    background: linear-gradient(145deg, #c9a227, #facc15);
+    border: 3px solid #c9a227;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
 }
 
 .kundali:empty{
-    background:#000;     /* when nothing rendered */
+    background:#000;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 .house{
-    background:#2b0000;
-
+    background: linear-gradient(135deg, #1a0000, #3d0000);
     position:relative;
-
-    padding-top:26px;
-    padding-left:6px;
-    padding-right:6px;
-
+    padding-top:28px;
+    padding-left:8px;
+    padding-right:8px;
     display:flex;
     flex-direction:column;
-	
     align-items:center;
-
     font-size:14px;
-
-    font-family:
-      "Segoe UI",
-      "Noto Sans",
-      "DejaVu Sans",
-      Arial,
-      sans-serif;
-	  min-height:120px;
+    font-family: 'Poppins', sans-serif;
+    min-height:120px;
+    transition: all 0.3s ease;
 }
 
-
-
-
-
-
+.house:hover {
+    background: linear-gradient(135deg, #2b0000, #4f0000);
+}
 
 .house-num{
     display:none;
 }
+
 .center-box{
     grid-column:2/4;
     grid-row:2/4;
-
-    background:#000;
-
+    background: radial-gradient(circle, #111, #000);
     display:flex;
     align-items:center;
     justify-content:center;
-
-    color:#ffcc00;
-    font-weight:bold;
+    color:#facc15;
+    font-weight:900;
+    font-size: 24px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    box-shadow: inset 0 0 15px rgba(250, 204, 21, 0.2);
 }
 
 /* ASC line */
 .asc-line{
-    color:#ffcc00;
+    color:#facc15;
     font-weight:900;
     font-size:16px;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 4px;
 }
 
 /* Male / Female */
 .male{
     color:#60a5fa;
-    font-weight:bold;
+    font-weight:600;
+    letter-spacing: 0.5px;
 }
 
 .female{
     color:#f472b6;
-    font-weight:bold;
+    font-weight:600;
+    letter-spacing: 0.5px;
 }
-
-
 
 
 
@@ -574,6 +557,297 @@ select,input{
 
 
 
+<!-- ================= SARVASTAKAVARGA COMPARATOR ================= -->
+
+<div class="panel" style="margin-top: 50px;">
+
+<div class="sav-heading" onclick="toggleSAV()">
+SARVASTAKAVARGA COMPARATOR ▼
+</div>
+
+
+
+<div id="savContainer" style="display:none">
+
+  <div class="ashta-row-label">SAV of Boy | SAV of Girl</div>
+
+  <div class="ashta-compare-grid">
+    <div>
+      <div class="ashta-compare-title">Boy SAV</div>
+      <div id="savBoyChart"></div>
+    </div>
+    <div>
+      <div class="ashta-compare-title">Girl SAV</div>
+      <div id="savGirlChart"></div>
+    </div>
+  </div>
+
+  <div class="ashta-row-label">Lagna of Boy | Lagna of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="lagnaBoyChart"></div></div>
+    <div><div id="lagnaGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Chandra of Boy | Chandra of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="chandraBoyChart"></div></div>
+    <div><div id="chandraGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Mangala of Boy | Mangala of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="mangalaBoyChart"></div></div>
+    <div><div id="mangalaGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Venus of Boy | Venus of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="venusBoyChart"></div></div>
+    <div><div id="venusGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Budha of Boy | Budha of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="budhaBoyChart"></div></div>
+    <div><div id="budhaGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Guru of Boy | Guru of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="guruBoyChart"></div></div>
+    <div><div id="guruGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Shani of Boy | Shani of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="shaniBoyChart"></div></div>
+    <div><div id="shaniGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Surya of Boy | Surya of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="suryaBoyChart"></div></div>
+    <div><div id="suryaGirlChart"></div></div>
+  </div>
+
+  <div class="ashta-row-label">Rahu of Boy | Rahu of Girl</div>
+  <div class="ashta-compare-grid">
+    <div><div id="rahuBoyChart"></div></div>
+    <div><div id="rahuGirlChart"></div></div>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+
+/* ================= SARVASTAKAVARGA ================= */
+
+.sav-heading{
+text-align:center;
+font-size:20px;
+font-weight:900;
+color:#facc15;
+cursor:pointer;
+background:#000;
+padding:10px;
+border:1px solid #c9a227;
+}
+
+#savPlanetTable{
+width:100%;
+border-collapse:collapse;
+}
+
+#savPlanetTable th,
+#savPlanetTable td{
+border:1px solid #c9a227;
+padding:6px;
+text-align:center;
+font-weight:700;
+}
+
+.sav-asc{
+background:#facc15;
+color:#000;
+font-weight:900;
+}
+
+
+
+.ashta-compare-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(320px, 1fr));
+  gap:24px;
+  align-items:start;
+}
+
+.ashta-compare-title{
+  text-align:center;
+  font-weight:900;
+  color:#facc15;
+  margin-bottom:8px;
+}
+
+
+
+
+
+.mini-kundali{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(4,70px);
+  width:320px;
+  margin:0 auto;
+  gap:2px;
+  background: linear-gradient(145deg, #c9a227, #facc15);
+  border: 2px solid #c9a227;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.mini-house{
+  background: linear-gradient(135deg, #1a0000, #3d0000);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:22px;
+  font-weight:900;
+  color:#fef3c7;
+  min-height:70px;
+  font-family: 'Cinzel', serif;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.mini-center{
+  grid-column:2/4;
+  grid-row:2/4;
+  background: radial-gradient(circle, #111, #000);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:20px;
+  font-weight:900;
+  color:#facc15;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
+  box-shadow: inset 0 0 10px rgba(250, 204, 21, 0.2);
+}
+
+/* ===== NEW DYNAMIC HIGHLIGHT CLASSES ===== */
+.highlight-asc {
+    background: linear-gradient(135deg, #7f1d1d, #991b1b) !important; /* Rich Crimson */
+    box-shadow: inset 0 0 10px rgba(250, 204, 21, 0.2);
+    color: #fef3c7 !important;
+}
+
+.highlight-planet {
+    background: linear-gradient(135deg, #581c1c, #771d1d) !important; /* Deep Burgundy */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+    color: #fef3c7 !important;
+}
+
+
+
+
+
+
+
+
+
+
+.ashta-row-label{
+  text-align:center;
+  font-size:18px;
+  font-weight:900;
+  color:#facc15;
+  margin:18px 0 10px 0;
+}
+
+
+
+
+
+
+
+
+</style>
+
+
+
+
+
+
+
+
+
+<div class="panel" style="margin-top: 50px;">
+  <h2 style="text-align:center; color:#facc15;">Dusthana Calculator</h2>
+  
+  <div style="display:flex; justify-content:space-between; gap:20px;">
+      <div style="flex:1; border:1px solid #c9a227; padding:14px; background:#111; border-radius:6px;">
+          <h3 style="color:#60a5fa; text-align:center; margin-top:0;">FOR MALE</h3>
+          <p style="font-size:16px;"><b>Dosha from Lagna :</b> <span id="dusthanaMaleLagna" style="color:#f87171; font-weight:bold;">-</span></p>
+          <p style="font-size:16px;"><b>Dosha from Chandra :</b> <span id="dusthanaMaleChandra" style="color:#f87171; font-weight:bold;">-</span></p>
+          <p style="font-size:16px;"><b>Dosha from Venus :</b> <span id="dusthanaMaleVenus" style="color:#f87171; font-weight:bold;">-</span></p>
+      </div>
+      
+      <div style="flex:1; border:1px solid #c9a227; padding:14px; background:#111; border-radius:6px;">
+          <h3 style="color:#f472b6; text-align:center; margin-top:0;">FOR FEMALE</h3>
+          <p style="font-size:16px;"><b>Dosha from Lagna :</b> <span id="dusthanaFemaleLagna" style="color:#f87171; font-weight:bold;">-</span></p>
+          <p style="font-size:16px;"><b>Dosha from Chandra :</b> <span id="dusthanaFemaleChandra" style="color:#f87171; font-weight:bold;">-</span></p>
+          <p style="font-size:16px;"><b>Dosha from Venus :</b> <span id="dusthanaFemaleVenus" style="color:#f87171; font-weight:bold;">-</span></p>
+      </div>
+  </div>
+
+<div style="margin-top:20px; padding:14px; border:1px solid #c9a227; background:#1a0000; text-align:center; border-radius:6px;">
+      <h3 style="color:#facc15; margin-top:0; font-size:18px;">Male Venus & Female Jupiter Connection (Sign Based)</h3>
+      <div style="display:flex; justify-content:center; align-items:center; gap:20px;">
+          <span style="font-size:18px;">Placement Distance: <span id="venJupDist" style="font-weight:900; color:#fff;">-</span></span>
+          <span id="venJupResult" style="font-size:20px; font-weight:900;">-</span>
+      </div>
+      
+      <div style="margin-top:15px; font-size:13px; text-align:left; display:flex; justify-content:center; gap:40px; border-top:1px dashed #c9a227; padding-top:12px; font-family: 'Poppins', sans-serif;">
+          <div style="color:#fca5a5; line-height: 1.6;">
+              <b style="color:#ef4444;">Bad Placements:</b><br>
+              <b>6-8</b> : Karmic Marriage, Difficulties, Debts & Enemity<br>
+              <b>4-10</b> : No Compatibility, Career Issues, Property Issues<br>
+              <b>2-12</b> : Losses After Marriage, Family Issues
+          </div>
+          <div style="color:#bbf7d0; line-height: 1.6;">
+              <b style="color:#22c55e;">Best Placements:</b><br>
+              <b>1-1</b> : Good Harmony, Destiny Matching<br>
+              <b>1-7</b> : Very Good, Destiny Matching<br>
+              <b>3-11</b> : Good Friendship, Fulfillment of Desires<br>
+              <b>5-9</b> : Very Good, Romantic Compatibility, Growth After Marriage, Destiny Matching
+          </div>
+      </div>
+  </div>
+
+
+
+
+
+
 
 
 
@@ -581,7 +855,7 @@ select,input{
 
 <!-- ================= TABLE 1 : INPUT ================= -->
 
-<div class="panel">
+<div class="panel" style="margin-top: 50px;">
 <h2>Table 1 – Input Details</h2>
 
 
@@ -1956,6 +2230,7 @@ document.addEventListener("change",e=>{
     recalcTable3();
     recalcTable4();
     recalcTable5();
+	
   }
 });
 
@@ -3554,7 +3829,7 @@ if(columnIndex === 2){
 renderKundali();
 renderNavamsha();
 recalcKPCounters();
-
+renderSAVCharts();
 
 
 
@@ -3771,6 +4046,7 @@ const natalMoonDeg  = planetMap.Chandra;
   recalcTable4();
   recalcTable5();
   recalcTable6();
+  calculateDusthana();
   
   
     IS_SWISS_LOADING = false;
@@ -4733,7 +5009,580 @@ function rebuildAllVim() {
 
 
 
+
+
+
+/* ===================== SAV PANEL ===================== */
+
+function toggleSAV(){
+const box=document.getElementById("savContainer");
+box.style.display = box.style.display==="none" ? "block" : "none";
+}
+
+
+
+
+
+
+/* ===================== ASHTAKAVARGA KUNDALI RENDER ===================== */
+
+const ASHTA_PLANETS = ["Surya","Chandra","Mangala","Budha","Jupiter","Venus","Saturn"];
+
+const ASHTA_BAV_RULES = {
+  Surya: {
+    Surya:[1,2,4,7,8,9,10,11], Chandra:[3,6,10,11], Mangala:[1,2,4,7,8,9,10,11],
+    Budha:[3,5,6,9,10,11,12], Jupiter:[5,6,9,11], Venus:[6,7,12], Saturn:[1,2,4,7,8,9,10,11], Lagna:[3,4,6,10,11,12]
+  },
+  Chandra: {
+    Surya:[3,6,7,8,10,11], Chandra:[1,3,6,7,10,11], Mangala:[2,3,5,6,9,10,11],
+    Budha:[1,3,4,5,7,8,10,11], Jupiter:[1,4,7,8,10,11,12], Venus:[3,4,5,7,9,10,11], Saturn:[3,5,6,11], Lagna:[3,6,10,11,12]
+  },
+  Mangala: {
+    Surya:[3,5,6,10,11], Chandra:[3,6,11], Mangala:[1,2,4,7,8,10,11],
+    Budha:[3,5,6,11], Jupiter:[6,10,11,12], Venus:[6,8,11,12], Saturn:[1,4,7,8,9,10,11], Lagna:[1,3,6,10,11]
+  },
+  Budha: {
+    Surya:[5,6,9,11,12], Chandra:[2,4,6,8,10,11], Mangala:[1,2,4,7,8,9,10,11],
+    Budha:[1,3,5,6,9,10,11,12], Jupiter:[6,8,11,12], Venus:[1,2,3,4,5,8,9,11], Saturn:[1,2,4,7,8,9,10,11], Lagna:[1,2,4,6,8,10,11]
+  },
+  Jupiter: {
+    Surya:[1,2,3,4,7,8,9,10,11], Chandra:[2,5,7,9,11], Mangala:[1,2,4,7,8,10,11],
+    Budha:[1,2,4,5,6,9,10,11], Jupiter:[1,2,3,4,7,8,10,11], Venus:[2,5,6,9,10,11], Saturn:[3,5,6,12], Lagna:[1,2,4,5,6,7,9,10,11]
+  },
+  Venus: {
+    Surya:[8,11,12], Chandra:[1,2,3,4,5,8,9,11,12], Mangala:[3,5,6,9,11,12],
+    Budha:[3,5,6,9,11], Jupiter:[5,8,9,10,11], Venus:[1,2,3,4,5,8,9,10,11], Saturn:[3,4,5,8,9,10,11], Lagna:[1,2,3,4,5,8,9]
+  },
+  Saturn: {
+    Surya:[1,2,4,7,8,10,11], Chandra:[3,6,11], Mangala:[3,5,6,10,11,12],
+    Budha:[6,8,9,10,11,12], Jupiter:[5,6,11,12], Venus:[6,11,12], Saturn:[3,5,6,11], Lagna:[1,3,4,6,10,11]
+  },
+  Rahu: {
+    Surya:[1,2,3,5,7,8,10], Chandra:[1,3,5,7,8,9,10], Mangala:[2,3,5,12],
+    Budha:[2,4,7,8,12], Jupiter:[1,3,4,6,8], Venus:[6,7,11,12], Saturn:[3,5,7,10,11,12], Lagna:[3,4,5,9,12]
+  }
+};
+
+const LAGNA_BAV_RULES = {
+  Surya:[3,4,6,10,11,12],
+  Chandra:[3,6,10,11,12],
+  Mangala:[1,3,6,10,11],
+  Budha:[1,2,4,6,8,10,11],
+  Jupiter:[1,2,4,5,6,7,9,10,11],
+  Venus:[1,2,3,4,5,8,9],
+  Saturn:[1,3,4,6,10,11],
+  Lagna:[3,6,10,11]
+};
+
+function getAshtaSigns(chart){
+  const ay = chart?.ayanamshas?.Lahiri || chart?.ayanamshas?.["KP New"];
+  if(!ay) return null;
+
+  return {
+    Surya: Math.floor(ay.planets.Surya / 30),
+    Chandra: Math.floor(ay.planets.Chandra / 30),
+    Mangala: Math.floor(ay.planets.Mangala / 30),
+    Budha: Math.floor(ay.planets.Budha / 30),
+    Jupiter: Math.floor(ay.planets.Jupiter / 30),
+    Venus: Math.floor(ay.planets.Venus / 30),
+    Saturn: Math.floor(ay.planets.Saturn / 30),
+    Rahu: Math.floor((ay.planets.Rahu_true ?? ay.planets.Rahu) / 30),
+    Lagna: Math.floor(ay.lagna / 30)
+  };
+}
+
+function calcSingleAshtaBAV(chart, target){
+  const signs = getAshtaSigns(chart);
+  if(!signs) return Array(12).fill(0);
+
+  const row = Array(12).fill(0);
+
+  if(target === "Lagna"){
+    Object.entries(LAGNA_BAV_RULES).forEach(([source, rules])=>{
+      const sSign = signs[source];
+      if(sSign === undefined) return;
+      rules.forEach(offset=>{
+        const z = (sSign + (offset - 1)) % 12;
+        row[z]++;
+      });
+    });
+    return row;
+  }
+
+  if(target === "Rahu"){
+    ["Surya","Chandra","Mangala","Budha","Jupiter","Venus","Saturn","Lagna"].forEach(source=>{
+      const rules = ASHTA_BAV_RULES.Rahu[source];
+      const sSign = signs[source];
+      if(!rules || sSign === undefined) return;
+      rules.forEach(offset=>{
+        const z = (sSign + (offset - 1)) % 12;
+        row[z]++;
+      });
+    });
+    return row;
+  }
+
+  ["Surya","Chandra","Mangala","Budha","Jupiter","Venus","Saturn","Lagna"].forEach(source=>{
+    const rules = ASHTA_BAV_RULES[target]?.[source];
+    const sSign = signs[source];
+    if(!rules || sSign === undefined) return;
+    rules.forEach(offset=>{
+      const z = (sSign + (offset - 1)) % 12;
+      row[z]++;
+    });
+  });
+
+  return row;
+}
+
+function calcAshtaSAV(chart){
+  const sav = Array(12).fill(0);
+
+  ["Surya","Chandra","Mangala","Budha","Jupiter","Venus","Saturn"].forEach(target=>{
+    const bav = calcSingleAshtaBAV(chart, target);
+    for(let i=0;i<12;i++){
+      sav[i] += bav[i];
+    }
+  });
+
+  return sav;
+}
+
+
+
+
+
+
+
+
+
+
+function renderMiniAshtaKundali(targetId, values, centerLabel, highlightIdx = -1, highlightType = "planet"){
+  const host = document.getElementById(targetId);
+  if(!host) return;
+
+  host.innerHTML = "";
+
+  const k = document.createElement("div");
+  k.className = "mini-kundali";
+
+  const map = [11,0,1,2,10,-1,-1,3,9,-1,-1,4,8,7,6,5];
+
+  map.forEach(idx=>{
+    if(idx === -1){
+      const c = document.createElement("div");
+      c.className = "mini-center";
+      c.textContent = centerLabel;
+      k.appendChild(c);
+    }else{
+      const cell = document.createElement("div");
+      cell.className = "mini-house";
+      
+      // Apply correct highlight based on arguments
+      if (idx === highlightIdx) {
+          cell.classList.add(highlightType === "asc" ? "highlight-asc" : "highlight-planet");
+      }
+      
+      cell.textContent = values[idx] ?? "";
+      k.appendChild(cell);
+    }
+  });
+
+  host.appendChild(k);
+}
+
+
+
+
+
+
+
+
+
+
+function renderSAVCharts(){
+  if(!maleChartData || !femaleChartData) return;
+
+  const boySigns = getAshtaSigns(maleChartData) || {};
+  const girlSigns = getAshtaSigns(femaleChartData) || {};
+
+  // For SAV, we highlight ONLY the ASC (Lagna) sign using the "asc" style (Golden)
+  renderMiniAshtaKundali("savBoyChart", calcAshtaSAV(maleChartData), "SAV", boySigns.Lagna, "asc");
+  renderMiniAshtaKundali("savGirlChart", calcAshtaSAV(femaleChartData), "SAV", girlSigns.Lagna, "asc");
+
+  // For all others, we highlight the respective placed Planet/Lagna sign using the "planet" style (Emerald)
+  renderMiniAshtaKundali("lagnaBoyChart", calcSingleAshtaBAV(maleChartData, "Lagna"), "Lagna", boySigns.Lagna, "planet");
+  renderMiniAshtaKundali("lagnaGirlChart", calcSingleAshtaBAV(femaleChartData, "Lagna"), "Lagna", girlSigns.Lagna, "planet");
+
+  renderMiniAshtaKundali("chandraBoyChart", calcSingleAshtaBAV(maleChartData, "Chandra"), "Chandra", boySigns.Chandra, "planet");
+  renderMiniAshtaKundali("chandraGirlChart", calcSingleAshtaBAV(femaleChartData, "Chandra"), "Chandra", girlSigns.Chandra, "planet");
+
+  renderMiniAshtaKundali("mangalaBoyChart", calcSingleAshtaBAV(maleChartData, "Mangala"), "Mangala", boySigns.Mangala, "planet");
+  renderMiniAshtaKundali("mangalaGirlChart", calcSingleAshtaBAV(femaleChartData, "Mangala"), "Mangala", girlSigns.Mangala, "planet");
+
+  renderMiniAshtaKundali("venusBoyChart", calcSingleAshtaBAV(maleChartData, "Venus"), "Venus", boySigns.Venus, "planet");
+  renderMiniAshtaKundali("venusGirlChart", calcSingleAshtaBAV(femaleChartData, "Venus"), "Venus", girlSigns.Venus, "planet");
+
+  renderMiniAshtaKundali("budhaBoyChart", calcSingleAshtaBAV(maleChartData, "Budha"), "Budha", boySigns.Budha, "planet");
+  renderMiniAshtaKundali("budhaGirlChart", calcSingleAshtaBAV(femaleChartData, "Budha"), "Budha", girlSigns.Budha, "planet");
+
+  renderMiniAshtaKundali("guruBoyChart", calcSingleAshtaBAV(maleChartData, "Jupiter"), "Guru", boySigns.Jupiter, "planet");
+  renderMiniAshtaKundali("guruGirlChart", calcSingleAshtaBAV(femaleChartData, "Jupiter"), "Guru", girlSigns.Jupiter, "planet");
+
+  renderMiniAshtaKundali("shaniBoyChart", calcSingleAshtaBAV(maleChartData, "Saturn"), "Shani", boySigns.Saturn, "planet");
+  renderMiniAshtaKundali("shaniGirlChart", calcSingleAshtaBAV(femaleChartData, "Saturn"), "Shani", girlSigns.Saturn, "planet");
+
+  renderMiniAshtaKundali("suryaBoyChart", calcSingleAshtaBAV(maleChartData, "Surya"), "Surya", boySigns.Surya, "planet");
+  renderMiniAshtaKundali("suryaGirlChart", calcSingleAshtaBAV(femaleChartData, "Surya"), "Surya", girlSigns.Surya, "planet");
+
+  renderMiniAshtaKundali("rahuBoyChart", calcSingleAshtaBAV(maleChartData, "Rahu"), "Rahu", boySigns.Rahu, "planet");
+  renderMiniAshtaKundali("rahuGirlChart", calcSingleAshtaBAV(femaleChartData, "Rahu"), "Rahu", girlSigns.Rahu, "planet");
+}
+
+
+
+
 </script>
+
+
+
+<script>
+
+/* ================= ASHTAKAVARGA ENGINE ================= */
+
+/*
+Simplified classical BAV bindu rules
+(Accurate enough for SAV comparison tool)
+*/
+
+const ASHTA_RULES = {
+
+Surya:[1,2,4,7,8,9,10,11],
+Chandra:[3,6,7,8,10,11],
+Mangala:[1,2,4,7,8,10,11],
+Budha:[2,4,6,8,10,11],
+Jupiter:[5,6,9,11],
+Venus:[6,7,12],
+Saturn:[1,2,4,7,8,10,11]
+
+};
+
+/* ===== GET PLANET SIGN ===== */
+
+function getPlanetSigns(chart){
+
+const ay = chart.ayanamshas?.Lahiri || chart.ayanamshas?.["KP New"];
+if(!ay) return null;
+
+const p = ay.planets;
+
+return {
+
+Surya:Math.floor(p.Surya/30),
+Chandra:Math.floor(p.Chandra/30),
+Mangala:Math.floor(p.Mangala/30),
+Budha:Math.floor(p.Budha/30),
+Jupiter:Math.floor(p.Jupiter/30),
+Venus:Math.floor(p.Venus/30),
+Saturn:Math.floor(p.Saturn/30),
+Rahu:Math.floor((p.Rahu_true ?? p.Rahu)/30),
+Ketu:Math.floor((p.Ketu_true ?? p.Ketu)/30),
+Lagna:Math.floor(ay.lagna/30)
+
+};
+
+}
+
+/* ===== BUILD BAV ===== */
+
+function calcBAV(signs,planet){
+
+const bav = Array(12).fill(0);
+
+const rules = ASHTA_RULES[planet];
+if(!rules) return bav;
+
+const pSign = signs[planet];
+
+rules.forEach(h=>{
+
+const target = (pSign + h -1) % 12;
+bav[target]++;
+
+});
+
+return bav;
+
+}
+
+/* ===== BUILD SAV ===== */
+
+function calcSAV(signs){
+
+const sav = Array(12).fill(0);
+
+["Surya","Chandra","Mangala","Budha","Jupiter","Venus","Saturn"]
+.forEach(p=>{
+
+const bav = calcBAV(signs,p);
+
+for(let i=0;i<12;i++){
+
+sav[i]+=bav[i];
+
+}
+
+});
+
+return sav;
+
+}
+
+/* ===== RENDER BAV KUNDALI ===== */
+
+function renderBAVChart(id,bav){
+
+const k = document.getElementById(id);
+if(!k) return;
+
+k.innerHTML="";
+
+const houses = Array(12).fill().map(()=>[]);
+
+for(let i=0;i<12;i++){
+
+houses[i].push({
+
+text:bav[i],
+cls:""
+
+});
+
+}
+
+const map=[11,0,1,2,10,-1,-1,3,9,-1,-1,4,8,7,6,5];
+
+map.forEach(idx=>{
+
+if(idx===-1){
+
+const c=document.createElement("div");
+c.className="center-box";
+c.innerText="BAV";
+k.appendChild(c);
+return;
+
+}
+
+const h=document.createElement("div");
+h.className="house";
+
+houses[idx].forEach(it=>{
+
+const d=document.createElement("div");
+d.innerText=it.text;
+h.appendChild(d);
+
+});
+
+k.appendChild(h);
+
+});
+
+}
+
+/* ===== RENDER SAV ===== */
+
+function renderSAVChart(id,sav){
+
+const k = document.getElementById(id);
+if(!k) return;
+
+k.innerHTML="";
+
+const houses = Array(12).fill().map(()=>[]);
+
+for(let i=0;i<12;i++){
+
+houses[i].push({
+
+text:sav[i],
+cls:""
+
+});
+
+}
+
+const map=[11,0,1,2,10,-1,-1,3,9,-1,-1,4,8,7,6,5];
+
+map.forEach(idx=>{
+
+if(idx===-1){
+
+const c=document.createElement("div");
+c.className="center-box";
+c.innerText="SAV";
+k.appendChild(c);
+return;
+
+}
+
+const h=document.createElement("div");
+h.className="house";
+
+houses[idx].forEach(it=>{
+
+const d=document.createElement("div");
+d.innerText=it.text;
+h.appendChild(d);
+
+});
+
+k.appendChild(h);
+
+});
+
+}
+
+/* ===== MAIN SAV/BAV RUNNER ===== */
+
+function runAshtakavarga(){
+
+if(!maleChartData || !femaleChartData) return;
+
+const maleSigns = getPlanetSigns(maleChartData);
+const femaleSigns = getPlanetSigns(femaleChartData);
+
+/* SAV */
+
+const savBoy = calcSAV(maleSigns);
+const savGirl = calcSAV(femaleSigns);
+
+renderSAVChart("savBoyChart",savBoy);
+renderSAVChart("savGirlChart",savGirl);
+
+/* BAV */
+
+const planets=["Surya","Chandra","Mangala","Budha","Jupiter","Venus","Saturn"];
+
+planets.forEach(p=>{
+
+const b1 = calcBAV(maleSigns,p);
+const b2 = calcBAV(femaleSigns,p);
+
+renderBAVChart(p.toLowerCase()+"BoyChart",b1);
+renderBAVChart(p.toLowerCase()+"GirlChart",b2);
+
+});
+
+/* Lagna BAV */
+
+const lagnaBoy = calcBAV(maleSigns,"Surya");
+const lagnaGirl = calcBAV(femaleSigns,"Surya");
+
+renderBAVChart("lagnaBoyChart",lagnaBoy);
+renderBAVChart("lagnaGirlChart",lagnaGirl);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================= DUSTHANA CALCULATOR ENGINE ================= */
+function calculateDusthana() {
+    if (!maleChartData || !femaleChartData) return;
+
+    const mAy = maleChartData.ayanamshas?.Lahiri || maleChartData.ayanamshas?.["KP New"];
+    const fAy = femaleChartData.ayanamshas?.Lahiri || femaleChartData.ayanamshas?.["KP New"];
+    if (!mAy || !fAy) return;
+
+    const planetsList = ["Surya", "Chandra", "Mangala", "Budha", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
+
+    function getAfflictions(ayData, refDeg) {
+        const afflictions = [];
+        const refSign = Math.floor(refDeg / 30);
+
+        planetsList.forEach(p => {
+            let pDeg = (p === "Rahu") ? (ayData.planets.Rahu_true ?? ayData.planets.Rahu) :
+                       (p === "Ketu") ? (ayData.planets.Ketu_true ?? ayData.planets.Ketu) :
+                       ayData.planets[p];
+
+            if (pDeg === undefined) return;
+
+            const pSign = Math.floor(pDeg / 30);
+            
+            // 1. Sign distance check
+            const signDist = ((pSign - refSign + 12) % 12) + 1;
+            
+            // 2. KP/Degree distance check (exact 30-degree slices from reference)
+            const degDist = Math.floor(((pDeg - refDeg + 360) % 360) / 30) + 1;
+
+            if ([6, 8, 12].includes(signDist) || [6, 8, 12].includes(degDist)) {
+                afflictions.push(p);
+            }
+        });
+        return afflictions.length > 0 ? afflictions.join(", ") : "None";
+    }
+
+    // Process Male
+    document.getElementById("dusthanaMaleLagna").innerText = getAfflictions(mAy, mAy.lagna);
+    document.getElementById("dusthanaMaleChandra").innerText = getAfflictions(mAy, mAy.planets.Chandra);
+    document.getElementById("dusthanaMaleVenus").innerText = getAfflictions(mAy, mAy.planets.Venus);
+
+    // Process Female
+    document.getElementById("dusthanaFemaleLagna").innerText = getAfflictions(fAy, fAy.lagna);
+    document.getElementById("dusthanaFemaleChandra").innerText = getAfflictions(fAy, fAy.planets.Chandra);
+    document.getElementById("dusthanaFemaleVenus").innerText = getAfflictions(fAy, fAy.planets.Venus);
+
+    // Venus Male vs Jupiter Female (Sign Distance Logic)
+    const mVenSign = Math.floor(mAy.planets.Venus / 30);
+    const fJupSign = Math.floor(fAy.planets.Jupiter / 30);
+    
+    let d1 = (fJupSign - mVenSign + 12) % 12 + 1;
+    let d2 = (mVenSign - fJupSign + 12) % 12 + 1;
+    let x = Math.min(d1, d2);
+    let y = Math.max(d1, d2);
+    
+    let distStr = "";
+    if (x === 1 && y === 1) distStr = "1-1";
+    else if (x === 7 && y === 7) distStr = "1-7";
+    else distStr = `${x}-${y}`;
+
+    document.getElementById("venJupDist").innerText = distStr;
+    const resEl = document.getElementById("venJupResult");
+
+    if (["2-12", "6-8", "4-10"].includes(distStr)) {
+        resEl.innerText = "BAD";
+        resEl.style.color = "#dc2626"; // Red
+    } else if (["1-1", "1-7", "3-11", "5-9"].includes(distStr)) {
+        resEl.innerText = "BEST";
+        resEl.style.color = "#16a34a"; // Green
+    } else {
+        resEl.innerText = "AVERAGE";
+        resEl.style.color = "#f59e0b"; // Yellow
+    }
+}
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
 
 
 
